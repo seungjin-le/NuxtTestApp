@@ -1,7 +1,6 @@
 <script>
 export default {
-  name: "ListLayout",
-  layout: "list",
+  name: "listLayout",
   head() {
     return {
       title: "Nuxt.js Layouts",
@@ -9,9 +8,10 @@ export default {
   },
 };
 </script>
+
 <template>
   <div>
     <div>List Layout</div>
-    <slot />
+    <Nuxt />
   </div>
 </template>

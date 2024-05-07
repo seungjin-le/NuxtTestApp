@@ -1,10 +1,9 @@
 <script>
 export default {
   name: "IndexPage",
+  layout: "defaultLayout",
 };
 </script>
 <template>
-  <NuxtLayout name="list">
-    <h1 class="bg-[red]">Index Page</h1>
-  </NuxtLayout>
+  <h1 class="bg-[red]">Indexfff Page</h1>
 </template>
