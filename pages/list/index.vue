@@ -1,8 +1,8 @@
 <script>
-export default {
-  name: "ListPage",
-  layout: "listLayout",
-};
+definePageMeta({
+  title: "Nuxt.js Layouts",
+  layout: "list-layout",
+});
 </script>
 
 <template>

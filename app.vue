@@ -1,5 +1,6 @@
 <template>
-  <div>
-    <NuxtWelcome />
-  </div>
+  <div class="bg-[red]">dd</div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>

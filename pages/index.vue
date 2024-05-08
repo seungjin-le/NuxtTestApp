@@ -1,9 +1,10 @@
-<script>
-export default {
-  name: "IndexPage",
-  layout: "defaultLayout",
-};
+<script setup>
+definePageMeta({
+  title: "Index Page",
+  layout: "list-layout",
+});
 </script>
 <template>
-  <h1 class="bg-[red]">Indexfff Page</h1>
+  <h1 class="bg-[#863939]">Ind Page</h1>
+  <div>sdfaskldf</div>
 </template>
