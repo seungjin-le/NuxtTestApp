@@ -5,6 +5,6 @@ definePageMeta({
 });
 </script>
 <template>
-  <h1 class="bg-[#863939]">Ind Page</h1>
+  <h1 class="bg-[#863939]">Main Page</h1>
   <div>sdfaskldf</div>
 </template>
