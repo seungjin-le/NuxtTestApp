@@ -1,7 +1,7 @@
 <script setup>
 definePageMeta({
   title: "Index Page",
-  layout: "list-layout",
+  layout: "default",
 });
 </script>
 <template>

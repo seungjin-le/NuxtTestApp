@@ -1,10 +1,13 @@
 <script>
-export default {
+export default defineComponent({
   name: "Header",
-};
+  setup() {
+    return {};
+  },
+});
 </script>
 <template>
-  <header>
+  <div class="w-full bg-[red]">
     <h1>Header</h1>
-  </header>
+  </div>
 </template>
