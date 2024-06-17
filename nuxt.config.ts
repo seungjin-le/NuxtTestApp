@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   css: ["~/assets/css/tailwindcss.css"],
-  modules: ["@pinia/nuxt", "@hebilicious/vue-query-nuxt"],
+  modules: ["@pinia/nuxt"],
+
   pinia: {
     storesDirs: ["./stores/**"],
   },
