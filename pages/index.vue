@@ -1,7 +1,9 @@
 <script setup>
 import TextArea from "@/components/inputs/TextArea.vue";
 import TextInput from "~/components/inputs/TextInput.vue";
-import { parseMarkdown } from '@nuxtjs/mdc/runtime'
+import { parseMarkdown } from "@nuxtjs/mdc/runtime";
+import Asana from "asana";
+
 definePageMeta({
   title: "Index Page",
   layout: "default",
@@ -11,13 +13,35 @@ const title = useState("title", () => "zxcv");
 const types = useState("types", () => "[개발]");
 const contents = useState("contents", () => "태그1,태그2,태그3");
 const total = useState("total", () => "");
-const { data: ast } = await useAsyncData('markdown', () => parseMarkdown(`::alert
-${total.value} input
-::`))
-const handleOnClick = () => {
+const asana = useState("asana", () => {});
+
+const handleOnClick = async () => {
   const type = types.value.replaceAll("[", "").replaceAll("]", "").trim();
-  const arr = contents.value.split(/,|\n/).filter(v => v).map((item) => `[${type}] : ${item}`.trim());
+  const arr = contents.value
+    .split(/,|\n/)
+    .filter((v) => v)
+    .map((item) => `[${type}] : ${item}`.trim());
   total.value = `[ ${title.value} ] \n${arr.join("\n")}`;
+  await getData();
+};
+
+const getData = async () => {
+  const opt_fields = "name,due_on,start_on,completed";
+  const opt_pretty = "true";
+  const token = "";
+  const project_gid = "1207597249449674";
+
+  const { data } = await useFetch(
+    `https://app.asana.com/api/1.0/projects/${project_gid}/tasks?opt_fields=${opt_fields}&opt_pretty=${opt_pretty}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  console.log(data);
+  return data;
 };
 </script>
 
@@ -31,7 +55,7 @@ const handleOnClick = () => {
         보고서 만들기
       </button>
     </div>
-<!--    <MDCRenderer :body="ast.body" :data="ast.data" />-->
+
     <TextArea direction="col" :value="total" class="h-[400px]" :readOnly="true" />
   </div>
 </template>
