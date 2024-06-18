@@ -21,7 +21,7 @@ const handleOnClick = async () => {
   await getData();
 };
 const token = config.public.NUXT_ENV_API_KEY;
-const project_gid = config.public.NUXT_ENV_PROJECT_ID;
+
 const api_url = "https://app.asana.com/api/1.0/projects";
 
 const getProjects = async () => {
