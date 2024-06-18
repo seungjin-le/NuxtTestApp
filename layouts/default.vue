@@ -13,9 +13,9 @@ export default {
 <template>
   <div class="bg-[gray] w-full h-full min-h-[100vh] flex flex-col items-center justify-between">
     <div class="w-full flex flex-col items-center justify-start">
-      <Header />
+<!--      <Header class="h-0 overflow-hidden"/>-->
       <NuxtPage />
     </div>
-    <Footer class="bg-[red] w-full" />
+<!--    <Footer class="bg-[red] w-full h-0 overflow-hidden" />-->
   </div>
 </template>
