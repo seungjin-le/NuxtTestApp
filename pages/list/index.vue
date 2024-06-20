@@ -95,18 +95,6 @@ const getData = async ({ gid }) => {
 const getAll = async () => {
   filter.value = asana.value;
 };
-const getDetail = async ({ gid }) => {
-  try {
-    // const member = members.value.members
-
-    console.log("members", members.value.members, asana.value);
-    filter.value = asana.value.filter(({ assignee }) => {
-      return assignee?.gid === gid;
-    });
-  } catch (error) {
-    console.error("Error in getDetail:", error);
-  }
-};
 </script>
 
 <template>
@@ -142,13 +130,6 @@ const getDetail = async ({ gid }) => {
         <div class="text-[32px] py-[20px]">Members</div>
         <div class="w-full flex flex-col">
           <div
-            @click="getAll"
-            class="h-[50px] flex items-center justify-start px-[40px] text-white rounded-[8px] border-white border-[1px] bg-[#3d3d3d] rounded-b-none cursor-pointer"
-            v-if="members?.members"
-          >
-            전체보기
-          </div>
-          <div
             class="h-[50px] overflow-hidden relative flex flex-col items-start justify-start px-[40px] text-white rounded-t-none border-white border-[1px] bg-[#3d3d3d] cursor-pointer transition-all"
             v-for="(item, index) in members?.members"
             :class="{
@@ -158,10 +139,36 @@ const getDetail = async ({ gid }) => {
             :key="item.gid"
             @click="members.members[index].checked = !members.members[index]?.checked"
           >
-            <div class="h-[50px] overflow-y-auto flex items-center justify-center">{{ item.name }}</div>
+            <div class="min-h-[50px] max-h-[50px] overflow-y-auto flex items-center justify-start">
+              {{ item.name }}
+            </div>
 
-            <div class="h-[50px]" v-for="task in item.tasks" :key="task.gid">
-              {{ task }}
+            <div class="w-full overflow-hidden border-[1px] border-white rounded-[8px] mt-[50px]">
+              <div class="h-[50px] flex flex-row flex-1 border-b-[1px] border-b-white">
+                <div class="max-w-[150px] min-w-[150px] flex-1 flex items-center justify-center">작업자</div>
+                <div class="flex-1 flex items-center justify-center">작업내용</div>
+                <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">종료일</div>
+                <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">시작일</div>
+                <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">완료여부</div>
+              </div>
+              <div class="overflow-y-auto max-h-[300px]">
+                <div
+                  v-for="(task, index) in item.tasks"
+                  :key="task.gid"
+                  class="h-[50px] flex flex-row items-center justify-center"
+                  :class="{
+                    'bg-[#3d3d3d]': index % 2 === 0,
+                    'bg-[#2d2d2d]': index % 2 === 1,
+                    'border-b-white border-b-[1px]': index !== item.tasks.length - 1,
+                  }"
+                >
+                  <div class="max-w-[150px] min-w-[150px] flex-1 text-center">{{ task.assignee?.name }}</div>
+                  <div class="flex-1">{{ task.name }}</div>
+                  <div class="max-w-[100px] flex-1 text-center">{{ task.due_on }}</div>
+                  <div class="max-w-[100px] flex-1 text-center">{{ task.start_on }}</div>
+                  <div class="max-w-[100px] flex-1 text-center">{{ task.completed ? "완료" : "미완료" }}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
