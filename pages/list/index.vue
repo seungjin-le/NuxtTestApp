@@ -1,7 +1,8 @@
 <script setup>
 import axios from "axios";
-import TaskListItem from "~/components/items/TaskListItem.vue";
 
+const ListLoading = defineAsyncComponent(() => import("~/components/loading/ListLoading.vue"));
+const DefaultButton = defineAsyncComponent(() => import("~/components/buttons/DefaultButton.vue"));
 definePageMeta({
   title: "Nuxt.js Layouts",
   layout: "list-layout",
@@ -10,9 +11,12 @@ const config = useRuntimeConfig();
 const queryClient = useQueryClient();
 const api_url = "https://app.asana.com/api/1.0";
 const token = config.public.NUXT_ENV_API_KEY;
+const currentGid = useState("currentGid", () => "");
 const members = useState("members", () => []);
 const sections = useState("sections", () => []);
 const filter = useState("filter", () => []);
+const taskIsLoading = useState("taskIsLoading", () => false);
+const memberIsLoading = useState("memberIsLoading", () => false);
 
 const { isLoading, isError, data, error } = useQuery({
   queryKey: ["projects"],
@@ -23,8 +27,12 @@ const { isLoading, isError, data, error } = useQuery({
 });
 
 const getTask = async (gid) => {
-  const opt_pretty = "true";
+  if (gid === currentGid.value || taskIsLoading.value) return;
 
+  const opt_pretty = "true";
+  taskIsLoading.value = true;
+  memberIsLoading.value = true;
+  currentGid.value = gid;
   await axios
     .get(`${api_url}/projects/${gid}/sections?opt_pretty=${opt_pretty}`, {
       headers: {
@@ -40,14 +48,16 @@ const getTask = async (gid) => {
     .catch((error) => {
       console.error("Error fetching data:", error);
     });
+  taskIsLoading.value = false;
 };
 
 const getMembers = async ({ gid }) => {
   if (!gid) return;
   const opt_fields = "members.name";
   const opt_pretty = "true";
+
   await getData({ gid });
-  return await axios
+  await axios
     .get(`${api_url}/projects/${gid}?opt_fields=${opt_fields}&opt_pretty=${opt_pretty}`, {
       headers: {
         accept: "application/json",
@@ -67,6 +77,7 @@ const getMembers = async ({ gid }) => {
     .catch((error) => {
       members.value = [];
     });
+  memberIsLoading.value = false;
 };
 
 const asana = useState("asana", () => []);
@@ -99,74 +110,104 @@ const getAll = async () => {
 
 <template>
   <div class="w-full h-auto bg-[gray]">
-    <div class="flex flex-col max-w-[1280px] gap-[100px] mx-auto">
-      <div>
-        <div class="text-[32px] py-[20px]">Projects</div>
-        <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,_1fr))] gap-[20px] max-w-[1280px] mx-auto">
-          <div
-            v-for="item in data?.data"
-            @click="getTask(item.gid)"
-            :key="item.gid"
-            class="w-[200px] h-[200px] flex flex-col rounded-[8px] border-white border-[1px]"
-          >
-            <div class="flex-1 bg-[#3d3d3d]"></div>
-            <div class="text-center py-[10px]">{{ item.name }}</div>
+    <div class="flex flex-col max-w-[1280px] gap-[50px] mx-auto px-[10px]">
+      <div class="flex flex-row gap-[10px] items-start justify-center">
+        <div class="flex-1 max-w-[50%]">
+          <div class="text-[32px] py-[20px]">Projects</div>
+          <ListLoading v-if="isLoading" />
+          <div v-else class="flex flex-col max-w-[1280px] mx-auto">
+            <div
+              v-for="(item, index) in data?.data"
+              @click="getTask(item.gid)"
+              :key="item.gid"
+              class="h-[50px] text-white flex items-center justify-start border-white border-[1px] overflow-hidden px-[20px] transition-all"
+              :class="{
+                'bg-[#3d3d3d] ': item.gid === currentGid,
+                'bg-[#2d2d2d] cursor-pointer': item.gid !== currentGid,
+                'rounded-b-[8px]': index === data?.data.length - 1,
+                'rounded-t-[8px]': index === 0,
+              }"
+            >
+              {{ item.name }}
+            </div>
+          </div>
+        </div>
+
+        <div class="max-w-[50%] w-full">
+          <div class="text-[32px] py-[20px]">Task</div>
+          <ListLoading v-if="taskIsLoading" />
+          <div v-else class="w-full flex flex-col justify-start">
+            <div
+              class="h-[50px] flex items-center justify-center text-white border-white border-[1px] bg-[#2d2d2d]"
+              :class="{
+                'rounded-t-[8px]': index === 0,
+                'rounded-b-[8px]': index === sections.length - 1,
+              }"
+              v-for="(item, index) in sections"
+              :key="item.gid"
+            >
+              {{ item.name }}
+            </div>
           </div>
         </div>
       </div>
-      <div class="max-w-[1280px] w-full">
-        <div class="text-[32px] py-[20px]">Task</div>
-        <div class="w-full grid grid-cols-[repeat(auto-fill,minmax(200px,_1fr))] justify-start gap-[20px]">
-          <div
-            class="w-[200px] h-[200px] flex items-center justify-center text-white rounded-[8px] border-white border-[1px] bg-[#3d3d3d]"
-            v-for="item in sections"
-            :key="item.gid"
-          >
-            {{ item.name }}
-          </div>
-        </div>
-      </div>
-      <div class="max-w-[1280px] w-full pb-[40px]">
+      <div class="flex-1 w-full pb-[40px]">
         <div class="text-[32px] py-[20px]">Members</div>
-        <div class="w-full flex flex-col">
+        <ListLoading v-if="memberIsLoading" />
+        <div v-else class="w-full flex flex-col">
           <div
-            class="h-[50px] overflow-hidden relative flex flex-col items-start justify-start px-[40px] text-white rounded-t-none border-white border-[1px] bg-[#3d3d3d] cursor-pointer transition-all"
+            class="h-[50px] overflow-hidden relative flex flex-col items-start justify-start text-white rounded-t-none border-white border-[1px] bg-[#3d3d3d] transition-all"
             v-for="(item, index) in members?.members"
             :class="{
               'rounded-b-[8px]': index === members?.members.length - 1,
               'h-[550px]': item?.checked,
             }"
             :key="item.gid"
-            @click="members.members[index].checked = !members.members[index]?.checked"
           >
-            <div class="min-h-[50px] max-h-[50px] overflow-y-auto flex items-center justify-start">
+            <div
+              class="min-h-[50px] max-h-[50px] overflow-y-auto flex items-center justify-start cursor-pointer w-full px-[40px]"
+              :class="{ 'border-b-[1px] ': item?.checked }"
+              @click="members.members[index].checked = !members.members[index]?.checked"
+            >
               {{ item.name }}
             </div>
-
-            <div class="w-full overflow-hidden border-[1px] border-white rounded-[8px] mt-[50px]">
-              <div class="h-[50px] flex flex-row flex-1 border-b-[1px] border-b-white">
-                <div class="max-w-[150px] min-w-[150px] flex-1 flex items-center justify-center">작업자</div>
-                <div class="flex-1 flex items-center justify-center">작업내용</div>
-                <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">종료일</div>
-                <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">시작일</div>
-                <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">완료여부</div>
-              </div>
-              <div class="overflow-y-auto max-h-[300px]">
+            <div class="flex flex-row items-center justify-end w-full gap-[10px] py-[20px] px-[40px]">
+              <DefaultButton text="최근 7일" />
+              <DefaultButton text="전체" />
+            </div>
+            <div class="w-full flex-1 px-[40px] h-full pb-[20px]">
+              <div
+                class="w-full h-full flex flex-col items-center justify-start overflow-hidden border-[1px] border-white rounded-[8px]"
+              >
                 <div
-                  v-for="(task, index) in item.tasks"
-                  :key="task.gid"
-                  class="h-[50px] flex flex-row items-center justify-center"
-                  :class="{
-                    'bg-[#3d3d3d]': index % 2 === 0,
-                    'bg-[#2d2d2d]': index % 2 === 1,
-                    'border-b-white border-b-[1px]': index !== item.tasks.length - 1,
-                  }"
+                  class="w-full h-[50px] flex flex-row flex-1 border-b-[1px] border-b-white [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none"
                 >
-                  <div class="max-w-[150px] min-w-[150px] flex-1 text-center">{{ task.assignee?.name }}</div>
-                  <div class="flex-1">{{ task.name }}</div>
-                  <div class="max-w-[100px] flex-1 text-center">{{ task.due_on }}</div>
-                  <div class="max-w-[100px] flex-1 text-center">{{ task.start_on }}</div>
-                  <div class="max-w-[100px] flex-1 text-center">{{ task.completed ? "완료" : "미완료" }}</div>
+                  <div class="max-w-[150px] min-w-[150px] flex-1 flex items-center justify-center">작업자</div>
+                  <div class="flex-1 flex items-center justify-center">작업내용</div>
+                  <div class="max-w-[120px] min-w-[100px] flex-1 flex items-center justify-center">종료일</div>
+                  <div class="max-w-[120px] min-w-[100px] flex-1 flex items-center justify-center">시작일</div>
+                  <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">완료여부</div>
+                </div>
+                <div class="overflow-y-auto h-full max-h-[350px] w-full">
+                  <div
+                    v-for="(task, index) in item.tasks"
+                    :key="task.gid"
+                    class="h-[50px] flex flex-row items-center justify-center [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none [&>div]:h-[50px]"
+                    :class="{
+                      'bg-[#3d3d3d]': index % 2 === 0,
+                      'bg-[#2d2d2d]': index % 2 === 1,
+                      'border-b-white border-b-[1px]': index !== item.tasks.length - 1,
+                    }"
+                  >
+                    <div class="max-w-[150px] min-w-[150px] memberlistItem">{{ task.assignee?.name || "-" }}</div>
+                    <div class="memberlistItem !justify-start px-[10px]">{{ task.name }}</div>
+                    <div class="max-w-[120px] memberlistItem">{{ task.due_on || "-" }}</div>
+                    <div class="max-w-[120px] memberlistItem">{{ task.start_on || "-" }}</div>
+                    <div class="max-w-[100px] memberlistItem">{{ task.completed ? "완료" : "미완료" }}</div>
+                  </div>
+                  <div v-if="!item.tasks || item.tasks.length === 0">
+                    <div class="h-[50px] flex items-center justify-center">작업이 없습니다.</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -176,3 +217,14 @@ const getAll = async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.memberlistItem {
+  flex: 1;
+  max-height: 50px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
