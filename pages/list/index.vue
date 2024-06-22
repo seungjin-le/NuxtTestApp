@@ -1,5 +1,6 @@
 <script setup>
 import axios from "axios";
+import dayjs from "dayjs";
 
 const ListLoading = defineAsyncComponent(() => import("~/components/loading/ListLoading.vue"));
 const DefaultButton = defineAsyncComponent(() => import("~/components/buttons/DefaultButton.vue"));
@@ -18,6 +19,8 @@ const sections = useState("sections", () => []);
 const filter = useState("filter", () => []);
 const taskIsLoading = useState("taskIsLoading", () => false);
 const memberIsLoading = useState("memberIsLoading", () => false);
+const asana = useState("asana", () => []);
+const copyTask = useState("copyTask", () => "");
 
 const { isLoading, isError, data, error } = useQuery({
   queryKey: ["projects"],
@@ -75,8 +78,8 @@ const getMembers = async ({ gid }) => {
         member.week = false;
         member.weekTasks = member.tasks.filter((task) => {
           return (
-            new Date(task.due_on) > new Date() &&
-            new Date(task.due_on) < new Date(new Date().setDate(new Date().getDate() + 7))
+            dayjs(task.due_on) > dayjs(new Date()) &&
+            dayjs(task.due_on) < dayjs(new Date().setDate(new Date().getDate() + 7))
           );
         });
       });
@@ -86,8 +89,6 @@ const getMembers = async ({ gid }) => {
     });
   memberIsLoading.value = false;
 };
-
-const asana = useState("asana", () => []);
 
 const getData = async ({ gid }) => {
   const opt_fields = "name,due_on,start_on,completed,assignee.name";
@@ -103,12 +104,56 @@ const getData = async ({ gid }) => {
     })
     .then(({ data }) => {
       asana.value = data.data;
-
       filter.value = asana.value;
     })
     .catch((error) => {
       console.error("Error fetching data:", error);
     });
+};
+
+const handleOnClickCopyTask = async (item) => {
+  const tasks = item.week ? item.weekTasks : item.tasks;
+  const completed = tasks.filter((task) => task.completed);
+  const notCompleted = tasks.filter((task) => !task.completed);
+  const notDone = notCompleted.filter((task) => dayjs(task.due_on) < dayjs(new Date()));
+  const done = notCompleted.filter((task) => dayjs(task.due_on) > dayjs(new Date()));
+
+  copyTask.value = ``;
+
+  copyTask.value += `[ ${item.name} ] \n`;
+  if (item.week) {
+    if (notDone.length > 0) {
+      copyTask.value += `[ 전주 미완료 사항 ] \n`;
+      notDone.map((task) => {
+        copyTask.value += `[ ${item.tag} ] ${task.name} \n`;
+      });
+    }
+    if (done.length > 0) {
+      copyTask.value += `[ 금주 예정 사항 ] \n`;
+      done.map((task) => {
+        copyTask.value += `[ ${item.tag} ] ${task.name} \n`;
+      });
+    }
+    if (completed.length > 0) {
+      copyTask.value += `[ 전주 완료 사항 ] \n`;
+      completed.map((task) => {
+        copyTask.value += `[ ${item.tag} ] ${task.name} \n`;
+      });
+    }
+  } else {
+    tasks.map((task) => {
+      copyTask.value += `[ ${item.tag} ] ${task.name} \n`;
+    });
+  }
+
+  // navigator.clipboard.writeText(item.name);
+  // alert("복사되었습니다.");
+};
+
+const handleOnClickCopy = async () => {
+  if (!copyTask.value) return;
+  navigator.clipboard.writeText(copyTask.value);
+  alert("복사되었습니다.");
 };
 </script>
 
@@ -176,7 +221,26 @@ const getData = async ({ gid }) => {
               {{ item.name }}
             </div>
             <div class="flex flex-row items-center justify-end w-full gap-[10px] py-[20px] px-[40px]">
-              <DefaultButton text="최근 7일" :onClick="() => (item['week'] = true)" />
+              <div
+                class="max-h-[40px] overflow-hidden flex flex-row items-center justify-center border-[1px] rounded-[8px] w-[340px]"
+              >
+                <div class="flex-1 max-w-[60px] flex items-center justify-center border-r-[1px] h-[40px]">태그</div>
+                <input
+                  type="text"
+                  :value="item.tag"
+                  @input="item.tag = $event.target.value"
+                  class="min-w-[280px] flex-1 min-h-[40px] max-h-[40px] outline-none border-none rounded-[8px] bg-[#2d2d2d] text-white px-[10px]"
+                />
+              </div>
+              <DefaultButton text="복사" :onClick="() => handleOnClickCopyTask(item)" />
+              <DefaultButton
+                text="최근 7일"
+                :onClick="() => (item['week'] = true)"
+                :class="{
+                  'bg-[#3d3d3d]': item.week,
+                  'bg-[#2d2d2d]': !item.week,
+                }"
+              />
               <DefaultButton text="전체" :onClick="() => (item['week'] = false)" />
             </div>
 
@@ -185,6 +249,22 @@ const getData = async ({ gid }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div
+        class="overflow-hidden transition-all mb-[40px] flex flex-col gap-[20px] items-end justify-end w-full"
+        :class="{
+          'h-0 ': !copyTask,
+          'h-[600px] ': copyTask,
+        }"
+      >
+        <DefaultButton text="복사" :onClick="() => handleOnClickCopy()" />
+
+        <textarea
+          :value="copyTask"
+          @input="copyTask = $event.target.value"
+          class="resize-none w-full max-h-[500px] h-full p-[20px] bg-[#2d2d2d] text-white rounded-[8px] outline-none border-[1px] border-white"
+        />
       </div>
     </div>
   </div>
