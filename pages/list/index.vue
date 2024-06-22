@@ -3,6 +3,7 @@ import axios from "axios";
 
 const ListLoading = defineAsyncComponent(() => import("~/components/loading/ListLoading.vue"));
 const DefaultButton = defineAsyncComponent(() => import("~/components/buttons/DefaultButton.vue"));
+const MemberTaskList = defineAsyncComponent(() => import("~/components/list/MemberTaskList.vue"));
 definePageMeta({
   title: "Nuxt.js Layouts",
   layout: "list-layout",
@@ -71,9 +72,15 @@ const getMembers = async ({ gid }) => {
         member.tasks = asana.value.filter(({ assignee }) => {
           return assignee?.gid === member.gid;
         });
+        member.week = false;
+        member.weekTasks = member.tasks.filter((task) => {
+          return (
+            new Date(task.due_on) > new Date() &&
+            new Date(task.due_on) < new Date(new Date().setDate(new Date().getDate() + 7))
+          );
+        });
       });
     })
-
     .catch((error) => {
       members.value = [];
     });
@@ -102,9 +109,6 @@ const getData = async ({ gid }) => {
     .catch((error) => {
       console.error("Error fetching data:", error);
     });
-};
-const getAll = async () => {
-  filter.value = asana.value;
 };
 </script>
 
@@ -172,44 +176,12 @@ const getAll = async () => {
               {{ item.name }}
             </div>
             <div class="flex flex-row items-center justify-end w-full gap-[10px] py-[20px] px-[40px]">
-              <DefaultButton text="최근 7일" />
-              <DefaultButton text="전체" />
+              <DefaultButton text="최근 7일" :onClick="() => (item['week'] = true)" />
+              <DefaultButton text="전체" :onClick="() => (item['week'] = false)" />
             </div>
-            <div class="w-full flex-1 px-[40px] h-full pb-[20px]">
-              <div
-                class="w-full h-full flex flex-col items-center justify-start overflow-hidden border-[1px] border-white rounded-[8px]"
-              >
-                <div
-                  class="w-full h-[50px] flex flex-row flex-1 border-b-[1px] border-b-white [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none"
-                >
-                  <div class="max-w-[150px] min-w-[150px] flex-1 flex items-center justify-center">작업자</div>
-                  <div class="flex-1 flex items-center justify-center">작업내용</div>
-                  <div class="max-w-[120px] min-w-[100px] flex-1 flex items-center justify-center">종료일</div>
-                  <div class="max-w-[120px] min-w-[100px] flex-1 flex items-center justify-center">시작일</div>
-                  <div class="max-w-[100px] min-w-[100px] flex-1 flex items-center justify-center">완료여부</div>
-                </div>
-                <div class="overflow-y-auto h-full max-h-[350px] w-full">
-                  <div
-                    v-for="(task, index) in item.tasks"
-                    :key="task.gid"
-                    class="h-[50px] flex flex-row items-center justify-center [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none [&>div]:h-[50px]"
-                    :class="{
-                      'bg-[#3d3d3d]': index % 2 === 0,
-                      'bg-[#2d2d2d]': index % 2 === 1,
-                      'border-b-white border-b-[1px]': index !== item.tasks.length - 1,
-                    }"
-                  >
-                    <div class="max-w-[150px] min-w-[150px] memberlistItem">{{ task.assignee?.name || "-" }}</div>
-                    <div class="memberlistItem !justify-start px-[10px]">{{ task.name }}</div>
-                    <div class="max-w-[120px] memberlistItem">{{ task.due_on || "-" }}</div>
-                    <div class="max-w-[120px] memberlistItem">{{ task.start_on || "-" }}</div>
-                    <div class="max-w-[100px] memberlistItem">{{ task.completed ? "완료" : "미완료" }}</div>
-                  </div>
-                  <div v-if="!item.tasks || item.tasks.length === 0">
-                    <div class="h-[50px] flex items-center justify-center">작업이 없습니다.</div>
-                  </div>
-                </div>
-              </div>
+
+            <div class="w-full flex-1 px-[40px] h-full">
+              <MemberTaskList :items="item" :week="item.week || false" />
             </div>
           </div>
         </div>
@@ -217,14 +189,3 @@ const getAll = async () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.memberlistItem {
-  flex: 1;
-  max-height: 50px;
-  min-height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

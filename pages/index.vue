@@ -1,9 +1,6 @@
 <script setup>
 import TextArea from "@/components/inputs/TextArea.vue";
 import TextInput from "~/components/inputs/TextInput.vue";
-import TaskListItem from "~/components/items/TaskListItem.vue";
-import { onBeforeMount } from "vue";
-import axios from "axios";
 
 definePageMeta({
   title: "Index Page",
