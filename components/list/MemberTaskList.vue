@@ -19,6 +19,7 @@ const height = useState("height", () => 0);
 const scrollHeight = useState("scrollHeight", () => 0);
 watch(items, () => {
   if (items.tasks.length !== 0) {
+    console.log("zxcvzxcv");
     height.value = 50 * (items.tasks.length > 7 ? 7 : items.tasks.length);
   }
 });
@@ -44,7 +45,7 @@ onMounted(() => {
       <div class="max-w-[100px] min-w-[100px] memberlistItem">완료여부</div>
     </div>
 
-    <div ref="listContainer" class="overflow-y-auto h-full w-full scrollbar-hide" :style="`max-height: ${height}px`">
+    <div ref="listContainer" class="overflow-y-auto w-full scrollbar-hide h-auth max-h-[600px]">
       <div
         v-for="(item, index) in items.week ? items.weekTasks : items.tasks"
         :key="item.gid"
@@ -63,7 +64,8 @@ onMounted(() => {
         <div class="max-w-[120px] memberlistItem">{{ item.start_on || "-" }}</div>
         <div class="max-w-[100px] memberlistItem">{{ item.completed ? "완료" : "미완료" }}</div>
       </div>
-      <div v-if="!items.tasks || items.tasks.length === 0">
+
+      <div v-if="!items.tasks || items.tasks.length === 0" class="flex items-center justify-center h-full flex-1">
         <div class="h-[50px] flex items-center justify-center">작업이 없습니다.</div>
       </div>
     </div>
@@ -80,3 +82,5 @@ onMounted(() => {
   justify-content: center;
 }
 </style>
+
+<!-- :style="`max-height: ${height}px; min-height: ${height}px`" -->

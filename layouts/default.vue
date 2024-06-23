@@ -11,11 +11,7 @@ export default {
 </script>
 
 <template>
-  <div class="bg-[gray] w-full h-full min-h-[100vh] flex flex-col items-center justify-between">
-    <div class="w-full flex flex-col items-center justify-start">
-<!--      <Header class="h-0 overflow-hidden"/>-->
-      <NuxtPage />
-    </div>
-<!--    <Footer class="bg-[red] w-full h-0 overflow-hidden" />-->
+  <div class="bg-[#2d2d2d] w-full h-full min-h-[100vh] flex flex-col items-center justify-between">
+    <NuxtPage />
   </div>
 </template>

@@ -1,9 +1,7 @@
 <template>
-  <div class="w-full h-full">
-    <div class="loading-container">
-      <div class="loading"></div>
-      <div id="loading-text">loading</div>
-    </div>
+  <div class="loading-container">
+    <div class="loading"></div>
+    <div id="loading-text">loading</div>
   </div>
 </template>
 

@@ -26,8 +26,8 @@ defineProps({
 
 <template>
   <div
-    class="cursor-pointer flex items-center justify-center"
-    :style="`min-width: ${width}px; max-width: ${width}px; min-height:${height}px; max-height:${height}px; background-color: #2d2d2d; color: white; border-radius: 8px;`"
+    class="cursor-pointer flex items-center justify-center border-[1px] rounded-[8px] text-white bg-[#2d2d2d]"
+    :style="`min-width: ${width}px; max-width: ${width}px; min-height:${height}px; max-height:${height}px;`"
     @click="onClick"
   >
     {{ text }}
