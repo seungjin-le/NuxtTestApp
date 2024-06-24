@@ -21,14 +21,7 @@ const memberIsLoading = useState("memberIsLoading", () => false);
 const asana = useState("asana", () => []);
 const copyTask = useState("copyTask", () => "");
 const currentTab = useState("currentTab", () => 1);
-const currentTask = useState("currentTask", () => ({
-  gid: "",
-  name: "",
-  tag: "",
-  tasks: [],
-  weekTasks: [],
-  week: false,
-}));
+const currentTask = useState("currentTask", () => []);
 
 const { isLoading, isError, data, error } = useQuery({
   queryKey: ["projects"],
@@ -39,14 +32,7 @@ const { isLoading, isError, data, error } = useQuery({
 });
 
 const resetCurrentTask = () => {
-  currentTask.value = {
-    gid: "",
-    name: "",
-    tag: "",
-    tasks: [],
-    weekTasks: [],
-    week: false,
-  };
+  currentTask.value = [];
 };
 
 const getTask = async (gid) => {
@@ -321,18 +307,15 @@ const handleOnClickCopy = async () => {
                 >
                   <div
                     class="min-h-[50px] max-h-[50px] overflow-y-auto flex items-center justify-start cursor-pointer w-full px-[40px] transition-all"
-                    :class="{
-                      'bg-[#2d2d2d]': item?.checked,
-                      'bg-[#3d3d3d]': !item?.checked,
-                    }"
+                    :class="[item?.checked ? 'bg-[#2d2d2d]' : 'bg-[#3d3d3d]']"
                     @click="
                       () => {
-                        members.members.forEach((member) => {
-                          member.checked = false;
-                        });
-
-                        currentTask = item;
-                        item.checked = true;
+                        item.checked = !item.checked;
+                        if (item.checked) {
+                          currentTask.push(item);
+                        } else {
+                          currentTask = currentTask.filter((task) => task.gid !== item.gid);
+                        }
                       }
                     "
                   >
