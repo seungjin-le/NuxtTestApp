@@ -6,7 +6,7 @@ const ListLoading = defineAsyncComponent(() => import("~/components/loading/List
 const DefaultButton = defineAsyncComponent(() => import("~/components/buttons/DefaultButton.vue"));
 const MemberTaskList = defineAsyncComponent(() => import("~/components/list/MemberTaskList.vue"));
 definePageMeta({
-  title: "Nuxt.js Layouts",
+  title: "Asana Task",
   layout: "default",
 });
 const config = useRuntimeConfig();
@@ -336,7 +336,31 @@ const handleOnClickCopy = async () => {
                       }
                     "
                   >
-                    {{ item.name }}
+                    <div class="flex flex-row items-center justify-center gap-[10px]">
+                      <div class="flex items-center justify-center gap-[10px]">
+                        <div
+                          class="w-[20px] h-[20px] rounded-[4px] bg-[#3d3d3d] border-[1px] border-white relative [&>span]:transition-all"
+                        >
+                          <span
+                            class="absolute top-1/2 translate-y-[-50%] left-[27%] w-[70%] h-[2px] bg-white -rotate-45 rounded-full"
+                            :class="{
+                              'opacity-0': !item.checked,
+                              'opacity-100': item.checked,
+                            }"
+                          />
+                          <span
+                            class="absolute top-1/2 translate-y-[-50%] left-[3%] w-[50%] h-[2px] bg-white rotate-45 rounded-full"
+                            :class="{
+                              'opacity-0': !item.checked,
+                              'opacity-100': item.checked,
+                            }"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        {{ item.name }}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
