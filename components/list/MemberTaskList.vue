@@ -11,7 +11,9 @@ const { items } = defineProps({
     default: false,
   },
 });
-console.log(items);
+watch(items, () => {
+  console.log(items);
+});
 </script>
 
 <template>
@@ -28,7 +30,6 @@ console.log(items);
 
     <div ref="listContainer" class="overflow-y-auto w-full scrollbar-hide h-auth max-h-[600px]">
       <div v-for="(member, i) in items" :key="member.gid">
-        {{ member }}
         <div
           v-for="(item, index) in week ? member?.weekTasks : member?.tasks"
           :key="item.gid"

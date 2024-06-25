@@ -22,6 +22,7 @@ const asana = useState("asana", () => []);
 const copyTask = useState("copyTask", () => "");
 const currentTab = useState("currentTab", () => 1);
 const currentTask = useState("currentTask", () => []);
+const isWeek = useState("isWeek", () => false);
 
 const { isLoading, isError, data, error } = useQuery({
   queryKey: ["projects"],
@@ -368,32 +369,23 @@ const handleOnClickCopy = async () => {
           <DefaultButton text="복사" :onClick="() => handleOnClickCopyTask(currentTask)" />
           <DefaultButton
             text="최근 7일"
-            :onClick="() => (currentTask.week = true)"
-            :class="{
-              'bg-[#3d3d3d]': currentTask.week,
-              'bg-[#2d2d2d]': !currentTask.week,
-            }"
+            :onClick="() => (isWeek = !isWeek)"
+            :class="[isWeek ? 'bg-[#3d3d3d]' : 'bg-[#2d2d2d]']"
           />
           <DefaultButton
             text="전체"
-            :onClick="() => (currentTask.week = false)"
-            :class="{
-              'bg-[#3d3d3d]': !currentTask.week,
-              'bg-[#2d2d2d]': currentTask.week,
-            }"
+            :onClick="() => (isWeek = !isWeek)"
+            :class="[isWeek ? 'bg-[#2d2d2d]' : 'bg-[#3d3d3d]']"
           />
         </div>
 
         <div class="w-full flex-1 h-full [&_*]:text-white">
-          <MemberTaskList :items="currentTask" :week="currentTask.week" />
+          <MemberTaskList :items="currentTask" :week="isWeek" />
         </div>
       </div>
       <div
         class="overflow-hidden transition-all mb-[40px] flex flex-col gap-[20px] items-end justify-end w-full"
-        :class="{
-          'h-0 ': !copyTask,
-          'h-[600px] ': copyTask,
-        }"
+        :class="[copyTask ? 'h-[600px]' : 'h-0']"
       >
         <DefaultButton text="복사" :onClick="() => handleOnClickCopy()" />
 
