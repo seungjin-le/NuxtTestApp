@@ -28,7 +28,7 @@ watch(items, () => {
       <div class="max-w-[100px] min-w-[100px] memberlistItem">완료여부</div>
     </div>
 
-    <div ref="listContainer" class="overflow-y-auto w-full scrollbar-hide h-auth max-h-[600px]">
+    <div v-if="items && items?.length > 0" class="overflow-y-auto w-full scrollbar-hide h-auth max-h-[600px]">
       <div v-for="(member, i) in items" :key="member.gid">
         <div
           v-for="(item, index) in week ? member?.weekTasks : member?.tasks"

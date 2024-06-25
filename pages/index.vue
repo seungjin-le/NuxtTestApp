@@ -311,9 +311,10 @@ const handleOnClickCopy = async () => {
                     :class="[item?.checked ? 'bg-[#2d2d2d]' : 'bg-[#3d3d3d]']"
                     @click="
                       () => {
-                        item.checked = !item.checked;
-                        if (item.checked) {
-                          currentTask.push(item);
+                        item['checked'] = !item['checked'];
+                        console.log(currentTask, item['checked']);
+                        if (item['checked']) {
+                          currentTask.push({ ...item });
                         } else {
                           currentTask = currentTask.filter((task) => task.gid !== item.gid);
                         }
