@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
       headers: { Authorization: `Bearer ${token}`, accept: "application/json", "Content-Type": "application/json" },
     })
     .then((response) => {
-      console.log(response.data);
       return response.data;
     })
     .catch((error) => {
