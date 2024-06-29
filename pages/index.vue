@@ -26,12 +26,9 @@ const isWeek = useState("isWeek", () => false);
 
 const { isLoading, isError, data, error } = useQuery({
   queryKey: ["projects"],
-  queryFn: () =>
-    $fetch(`${api_url}/projects`, {
-      headers: { Authorization: `Bearer ${token}`, accept: "application/json", "Content-Type": "application/json" },
-    }),
+  queryFn: () => $fetch(`api/v1/projects`),
 });
-
+console.log(data);
 const resetCurrentTask = () => {
   currentTask.value = [];
 };
