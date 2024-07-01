@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const opt_pretty = "true";
   console.log(event);
   return await axios
-    .get(`${api_url}/projects`, {
+    .get(`${api_url}/projects?opt_fields=${opt_fields}`, {
       headers: { Authorization: `Bearer ${token}`, accept: "application/json", "Content-Type": "application/json" },
     })
     .then((response) => {
