@@ -1,7 +1,7 @@
-<script setup(props) { }></script>
+<script setup></script>
 
 <template>
-  <section class="section">
+  <section class="w-full mx-auto">
     <slot />
   </section>
 </template>
