@@ -7,7 +7,7 @@ export default defineComponent({
 });
 </script>
 <template>
-  <div class="w-full bg-[red]">
-    <h1>Header</h1>
+  <div class="w-full py-[14px] flex items-center justify-center">
+    <h1 class="text-[24px] font-bold">Asana Task</h1>
   </div>
 </template>

@@ -8,7 +8,7 @@ export default defineComponent({
 });
 </script>
 <template>
-  <div class="bg-[#863939] text-white text-center p-4">
-    <p>&copy; 2021 Nuxt.js</p>
+  <div class="text-white text-end py-[14px] px-[20px]">
+    <div class="text-[24px] font-bold">Asana Task</div>
   </div>
 </template>
