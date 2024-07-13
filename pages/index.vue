@@ -28,7 +28,7 @@ const { isLoading, isError, data, error } = useQuery({
   queryKey: ["projects"],
   queryFn: () => $fetch(`api/v1/projects`),
 });
-console.log(data);
+
 const resetCurrentTask = () => {
   currentTask.value = [];
 };
@@ -36,51 +36,34 @@ const resetCurrentTask = () => {
 const getTask = async (gid) => {
   if (gid === currentGid.value || taskIsLoading.value) return;
 
-  const opt_pretty = "true";
   taskIsLoading.value = true;
   memberIsLoading.value = true;
   currentGid.value = gid;
   resetCurrentTask();
+
   await axios
-    .get(`${api_url}/projects/${gid}/sections?opt_pretty=${opt_pretty}`, {
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    .get(`api/v1/projects/detail?gid=${gid}`)
     .then(async ({ data }) => {
       sections.value = data.data;
       await getMembers({ gid });
-      // await getTaskList({ gid });
     })
     .catch((error) => {
       console.error("Error fetching data:", error);
     });
+
   taskIsLoading.value = false;
 };
 
 const getMembers = async ({ gid }) => {
   if (!gid) return;
-  const opt_fields = "members.name";
-  const opt_pretty = "true";
 
   await getData({ gid });
   await axios
-    .get(`${api_url}/projects/${gid}?opt_fields=${opt_fields}&opt_pretty=${opt_pretty}`, {
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    .get(`api/v1/projects/members?gid=${gid}`)
     .then(({ data }) => {
-      members.value = data.data;
-
+      members.value = data;
       members.value.members.map((member) => {
-        member.tasks = asana.value.filter(({ assignee }) => {
-          return assignee?.gid === member.gid;
-        });
+        member.tasks = asana.value.filter(({ assignee }) => assignee?.gid === member.gid);
 
         member.week = false;
         member.weekTasks = member.tasks.filter((task) => {
@@ -94,6 +77,7 @@ const getMembers = async ({ gid }) => {
     .catch((error) => {
       members.value = [];
     });
+
   memberIsLoading.value = false;
 };
 
@@ -116,17 +100,8 @@ const getTaskList = async ({ gid }) => {
 };
 
 const getData = async ({ gid }) => {
-  const opt_fields = "name,due_on,start_on,completed,assignee.name";
-  const opt_pretty = "true";
-
   await axios
-    .get(`${api_url}/projects/${gid}/tasks?opt_pretty=${opt_pretty}&opt_fields=${opt_fields}`, {
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    .get(`api/v1/projects/tasks?gid=${gid}`)
     .then(({ data }) => {
       asana.value = data.data;
     })
@@ -309,7 +284,6 @@ const handleOnClickCopy = async () => {
                     @click="
                       () => {
                         item['checked'] = !item['checked'];
-                        console.log(currentTask, item['checked']);
                         if (item['checked']) {
                           currentTask.push({ ...item });
                         } else {

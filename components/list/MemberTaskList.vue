@@ -12,7 +12,7 @@ const { items } = defineProps({
   },
 });
 watch(items, () => {
-  console.log(items);
+  console.log(items, "asdfasd");
 });
 </script>
 
@@ -28,16 +28,26 @@ watch(items, () => {
       <div class="max-w-[100px] min-w-[100px] memberlistItem">완료여부</div>
     </div>
 
-    <div v-if="items && items?.length > 0" class="overflow-y-auto w-full scrollbar-hide h-auth max-h-[600px]">
+    <div
+      v-if="items && items?.length > 0"
+      class="overflow-y-auto w-full scrollbar-hide h-auth max-h-[600px] flex flex-col gap-[20px]"
+    >
       <div v-for="(member, i) in items" :key="member.gid">
+        <div class="flex flex-row items-center justify-start">
+          <div
+            class="min-h-[50px] max-h-[50px] w-full bg-[#3d3d3d] flex items-center justify-center border-b-[1px] border-b-white text-[16px] font-bold max-w-[150px] min-w-[150px]"
+          >
+            {{ member.name }}({{ member.tasks.length }}개)
+          </div>
+        </div>
         <div
           v-for="(item, index) in week ? member?.weekTasks : member?.tasks"
-          :key="item.gid"
+          :key="`${member.gid}_${index}`"
           class="h-[50px] flex flex-row items-center justify-center [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none [&>div]:h-[50px]"
           :class="{
             'bg-[#3d3d3d]': index % 2 === 0,
             'bg-[#2d2d2d]': index % 2 === 1,
-            'border-b-white border-b-[1px]': index !== items.tasks.length - 1,
+            'border-b-white border-b-[1px]': index !== member.tasks.length - 1 || i !== items.length - 1,
           }"
         >
           <div class="max-w-[150px] min-w-[150px] memberlistItem">
@@ -48,10 +58,16 @@ watch(items, () => {
           <div class="max-w-[120px] memberlistItem">{{ item.start_on || "-" }}</div>
           <div class="max-w-[100px] memberlistItem">{{ item.completed ? "완료" : "미완료" }}</div>
         </div>
+        <div
+          v-if="!items || member?.tasks?.length === 0"
+          class="flex items-center justify-center h-full flex-1 bg-[#3d3d3d]"
+          :class="{
+            'border-b-white border-b-[1px]': i !== items.length - 1,
+          }"
+        >
+          <div class="h-[50px] flex items-center justify-center">작업이 없습니다.</div>
+        </div>
       </div>
-    </div>
-    <div v-if="!items || items?.length === 0" class="flex items-center justify-center h-full flex-1">
-      <div class="h-[50px] flex items-center justify-center">작업이 없습니다.</div>
     </div>
   </div>
 </template>
