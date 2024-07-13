@@ -11,9 +11,11 @@ const { items } = defineProps({
     default: false,
   },
 });
-watch(items, () => {
-  console.log(items, "asdfasd");
-});
+
+const handleCheckboxClick = (item) => {
+  console.log(item);
+  item.checked = !item.checked;
+};
 </script>
 
 <template>
@@ -21,6 +23,11 @@ watch(items, () => {
     <div
       class="flex-1 w-full memberlistItem border-b-[1px] border-b-white [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none"
     >
+      <div class="memberlistItem max-w-[50px] min-w-[50px]">
+        <label for="task_checked_all" class="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center">
+          <input id="task_checked_all" type="checkbox" class="hidden" />
+        </label>
+      </div>
       <div class="max-w-[150px] min-w-[150px] memberlistItem">작업자</div>
       <div class="memberlistItem">작업내용</div>
       <div class="max-w-[120px] min-w-[100px] memberlistItem">종료일</div>
@@ -35,7 +42,7 @@ watch(items, () => {
       <div v-for="(member, i) in items" :key="member.gid">
         <div class="flex flex-row items-center justify-start">
           <div
-            class="min-h-[50px] max-h-[50px] w-full bg-[#3d3d3d] flex items-center justify-center border-b-[1px] border-b-white text-[16px] font-bold max-w-[150px] min-w-[150px]"
+            class="min-h-[50px] max-h-[50px] w-full bg-[#3d3d3d] flex items-center justify-start border-b-[1px] border-b-white text-[16px] font-bold px-[20px]"
           >
             {{ member.name }}({{ member.tasks.length }}개)
           </div>
@@ -50,10 +57,31 @@ watch(items, () => {
             'border-b-white border-b-[1px]': index !== member.tasks.length - 1 || i !== items.length - 1,
           }"
         >
-          <div class="max-w-[150px] min-w-[150px] memberlistItem">
+          <div class="memberlistItem max-w-[50px] min-w-[50px]">
+            <div
+              @click="handleCheckboxClick(item)"
+              class="w-[20px] h-[20px] rounded-[4px] bg-[#3d3d3d] border-[1px] border-white relative [&>span]:transition-all"
+            >
+              <span
+                class="absolute top-1/2 translate-y-[-50%] left-[27%] w-[70%] h-[2px] bg-white -rotate-45 rounded-full"
+                :class="{
+                  'opacity-0': !item.checked,
+                  'opacity-100': item.checked,
+                }"
+              />
+              <span
+                class="absolute top-1/2 translate-y-[-50%] left-[3%] w-[50%] h-[2px] bg-white rotate-45 rounded-full"
+                :class="{
+                  'opacity-0': !item.checked,
+                  'opacity-100': item.checked,
+                }"
+              />
+            </div>
+          </div>
+          <div class="max-w-[150px] min-w-[150px] memberlistItem !justify-start px-[20px]">
             {{ item.assignee?.name || "-" }}
           </div>
-          <div class="!justify-start px-[10px] memberlistItem">{{ item.name }}</div>
+          <div class="!justify-start px-[20px] memberlistItem">{{ item.name }}</div>
           <div class="max-w-[120px] memberlistItem">{{ item.due_on || "-" }}</div>
           <div class="max-w-[120px] memberlistItem">{{ item.start_on || "-" }}</div>
           <div class="max-w-[100px] memberlistItem">{{ item.completed ? "완료" : "미완료" }}</div>
