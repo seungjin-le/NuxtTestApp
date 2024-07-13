@@ -1,5 +1,7 @@
 <script setup>
-const { items } = defineProps({
+const CheckBox = defineAsyncComponent(() => import("@/components/buttons/DefaultCheckBox.vue"));
+
+const { items, week } = defineProps({
   items: {
     type: Array,
     Required: false,
@@ -12,9 +14,29 @@ const { items } = defineProps({
   },
 });
 
+const members = useState("members", () => []);
+const checkedAll = useState("checkedAll", () => false);
+
+onMounted(() => {
+  members.value = items.value;
+});
+
 const handleCheckboxClick = (item) => {
-  console.log(item);
   item.checked = !item.checked;
+};
+const handleCheckboxAllClick = () => {
+  console.log(items);
+  if (members.value.length <= 0) return;
+
+  checkedAll.value = !checkedAll.value;
+
+  members.value = members.map((member) => {
+    member[week ? "weekTasks" : "tasks"].map((item) => {
+      item.checked = checkedAll.value;
+      return item;
+    });
+    return member;
+  });
 };
 </script>
 
@@ -24,9 +46,7 @@ const handleCheckboxClick = (item) => {
       class="flex-1 w-full memberlistItem border-b-[1px] border-b-white [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none"
     >
       <div class="memberlistItem max-w-[50px] min-w-[50px]">
-        <label for="task_checked_all" class="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center">
-          <input id="task_checked_all" type="checkbox" class="hidden" />
-        </label>
+        <CheckBox :item="{ checked: checkedAll }" @click="handleCheckboxAllClick(items)" />
       </div>
       <div class="max-w-[150px] min-w-[150px] memberlistItem">작업자</div>
       <div class="memberlistItem">작업내용</div>
@@ -50,7 +70,8 @@ const handleCheckboxClick = (item) => {
         <div
           v-for="(item, index) in week ? member?.weekTasks : member?.tasks"
           :key="`${member.gid}_${index}`"
-          class="h-[50px] flex flex-row items-center justify-center [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none [&>div]:h-[50px]"
+          @click="handleCheckboxClick(item)"
+          class="h-[50px] flex flex-row items-center justify-center [&>div]:border-r-[1px] [&>div]:border-b-white last:[&>div]:border-r-none [&>div]:h-[50px] hover:opacity-50 transition-all"
           :class="{
             'bg-[#3d3d3d]': index % 2 === 0,
             'bg-[#2d2d2d]': index % 2 === 1,
@@ -58,25 +79,7 @@ const handleCheckboxClick = (item) => {
           }"
         >
           <div class="memberlistItem max-w-[50px] min-w-[50px]">
-            <div
-              @click="handleCheckboxClick(item)"
-              class="w-[20px] h-[20px] rounded-[4px] bg-[#3d3d3d] border-[1px] border-white relative [&>span]:transition-all"
-            >
-              <span
-                class="absolute top-1/2 translate-y-[-50%] left-[27%] w-[70%] h-[2px] bg-white -rotate-45 rounded-full"
-                :class="{
-                  'opacity-0': !item.checked,
-                  'opacity-100': item.checked,
-                }"
-              />
-              <span
-                class="absolute top-1/2 translate-y-[-50%] left-[3%] w-[50%] h-[2px] bg-white rotate-45 rounded-full"
-                :class="{
-                  'opacity-0': !item.checked,
-                  'opacity-100': item.checked,
-                }"
-              />
-            </div>
+            <CheckBox :item="item" />
           </div>
           <div class="max-w-[150px] min-w-[150px] memberlistItem !justify-start px-[20px]">
             {{ item.assignee?.name || "-" }}
@@ -96,6 +99,9 @@ const handleCheckboxClick = (item) => {
           <div class="h-[50px] flex items-center justify-center">작업이 없습니다.</div>
         </div>
       </div>
+    </div>
+    <div v-if="!items || items?.length === 0" class="flex items-center justify-center h-full flex-1">
+      <div class="h-[50px] flex items-center justify-center">작업이 없습니다.</div>
     </div>
   </div>
 </template>

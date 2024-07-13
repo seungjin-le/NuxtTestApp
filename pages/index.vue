@@ -5,6 +5,8 @@ import dayjs from "dayjs";
 const ListLoading = defineAsyncComponent(() => import("~/components/loading/ListLoading.vue"));
 const DefaultButton = defineAsyncComponent(() => import("~/components/buttons/DefaultButton.vue"));
 const MemberTaskList = defineAsyncComponent(() => import("~/components/list/MemberTaskList.vue"));
+const CheckBox = defineAsyncComponent(() => import("@/components/buttons/DefaultCheckBox.vue"));
+const CopyModal = defineAsyncComponent(() => import("~/components/modal/CopyModal.vue"));
 definePageMeta({
   title: "Asana Task",
   layout: "default",
@@ -23,6 +25,7 @@ const copyTask = useState("copyTask", () => "");
 const currentTab = useState("currentTab", () => 1);
 const currentTask = useState("currentTask", () => []);
 const isWeek = useState("isWeek", () => false);
+const showCopyModal = useState("showCopyModal", () => false);
 
 const { isLoading, isError, data, error } = useQuery({
   queryKey: ["projects"],
@@ -110,7 +113,11 @@ const getData = async ({ gid }) => {
     });
 };
 
-const handleOnClickCopyTask = async (item) => {
+const handleOnClickCopyTask = async () => {
+  // showCopyModal.value = true;
+  console.log(currentTask.value);
+  const item = currentTask.value;
+  if (!item || item.length <= 0) return;
   const tasks = item.week ? item.weekTasks : item.tasks;
   const completed = tasks.filter((task) => task.completed);
   const notCompleted = tasks.filter((task) => !task.completed);
@@ -150,13 +157,17 @@ const handleOnClickCopyTask = async (item) => {
 };
 
 const handleOnClickCopy = async () => {
+  // showCopyModal.value = true;
+  console.log(copyTask.value);
   if (!copyTask.value) return;
+
   navigator.clipboard.writeText(copyTask.value);
   alert("복사되었습니다.");
 };
 </script>
 
 <template>
+  <CopyModal v-if="showCopyModal" :content="copyTask" @close="showCopyModal = false" />
   <div class="w-full h-auto [&_*]:text-whit py-[40px]">
     <div class="flex flex-col max-w-[1280px] gap-[50px] mx-auto px-[10px]">
       <div class="flex flex-row gap-[10px] items-start justify-center">
@@ -294,24 +305,7 @@ const handleOnClickCopy = async () => {
                   >
                     <div class="flex flex-row items-center justify-center gap-[10px]">
                       <div class="flex items-center justify-center gap-[10px]">
-                        <div
-                          class="w-[20px] h-[20px] rounded-[4px] bg-[#3d3d3d] border-[1px] border-white relative [&>span]:transition-all"
-                        >
-                          <span
-                            class="absolute top-1/2 translate-y-[-50%] left-[27%] w-[70%] h-[2px] bg-white -rotate-45 rounded-full"
-                            :class="{
-                              'opacity-0': !item.checked,
-                              'opacity-100': item.checked,
-                            }"
-                          />
-                          <span
-                            class="absolute top-1/2 translate-y-[-50%] left-[3%] w-[50%] h-[2px] bg-white rotate-45 rounded-full"
-                            :class="{
-                              'opacity-0': !item.checked,
-                              'opacity-100': item.checked,
-                            }"
-                          />
-                        </div>
+                        <CheckBox :item="item" />
                       </div>
                       <div>
                         {{ item.name }}
@@ -338,7 +332,7 @@ const handleOnClickCopy = async () => {
               class="min-w-[280px] flex-1 min-h-[40px] max-h-[40px] outline-none border-none rounded-[8px] bg-[#2d2d2d] px-[10px]"
             />
           </div>
-          <DefaultButton text="복사" :onClick="() => handleOnClickCopyTask(currentTask)" />
+          <DefaultButton text="복사" :onClick="handleOnClickCopyTask" />
           <DefaultButton
             text="최근 7일"
             :onClick="() => (isWeek = !isWeek)"
@@ -359,7 +353,7 @@ const handleOnClickCopy = async () => {
         class="overflow-hidden transition-all mb-[40px] flex flex-col gap-[20px] items-end justify-end w-full"
         :class="[copyTask ? 'h-[600px]' : 'h-0']"
       >
-        <DefaultButton text="복사" :onClick="() => handleOnClickCopy()" />
+        <DefaultButton text="복사" :onClick="handleOnClickCopy" />
 
         <textarea
           :value="copyTask"
