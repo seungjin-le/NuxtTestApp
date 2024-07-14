@@ -114,55 +114,73 @@ const getData = async ({ gid }) => {
 };
 
 const handleOnClickCopyTask = async () => {
-  // showCopyModal.value = true;
-  console.log(currentTask.value);
   const item = currentTask.value;
+
   if (!item || item.length <= 0) return;
-  const tasks = item.week ? item.weekTasks : item.tasks;
-  const completed = tasks.filter((task) => task.completed);
-  const notCompleted = tasks.filter((task) => !task.completed);
-  const notDone = notCompleted.filter((task) => dayjs(task.due_on) < dayjs(new Date()));
-  const done = notCompleted.filter((task) => dayjs(task.due_on) > dayjs(new Date()));
+  const tasks = item.filter((item) => (isWeek.value ? item.weekTasks : item.tasks));
+
+  const checked = tasks.map((task) => {
+    return {
+      name: task.name,
+      tasks: task.tasks.filter((task) => task.checked),
+    };
+  });
+
+  const completed = checked.map((task) => task.tasks.filter((task) => task.completed));
+
+  const notCompleted = checked.map((task) => task.tasks.filter((task) => !task.completed));
+  const notDone = notCompleted.map((task) => task.filter((task) => dayjs(task.due_on) < dayjs(new Date())));
+  const done = notCompleted.map((task) => task.filter((task) => dayjs(task.due_on) > dayjs(new Date())));
 
   copyTask.value = ``;
 
-  copyTask.value += `[ ${item.name} ] \n`;
-  if (item.week) {
-    if (notDone.length > 0) {
-      copyTask.value += `[ 전주 미완료 사항 ] \n`;
-      notDone.map((task) => {
-        copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-      });
-    }
-    if (done.length > 0) {
-      copyTask.value += `[ 금주 예정 사항 ] \n`;
-      done.map((task) => {
-        copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-      });
-    }
-    if (completed.length > 0) {
-      copyTask.value += `[ 전주 완료 사항 ] \n`;
-      completed.map((task) => {
-        copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-      });
-    }
+  if (isWeek.value) {
+    checked.map((task) => {
+      if (task.tasks.length <= 0) return;
+      copyTask.value += `[ ${task.name} ] \n`;
+      const completed = task.tasks.filter((task) => task.completed && dayjs(task.due_on) > dayjs(new Date()));
+      const notCompleted = task.tasks.filter((task) => !task.completed && dayjs(task.due_on) > dayjs(new Date()));
+      const schedule = task.tasks.filter((task) => !task.completed);
+      if (completed.length > 0) {
+        copyTask.value += `[ 전주 완료 사항 ] \n`;
+        completed.map((task) => {
+          copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
+        });
+      }
+      if (notCompleted.length > 0) {
+        copyTask.value += `[ 전주 미완료 사항 ] \n`;
+        notCompleted.map((task) => {
+          copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
+        });
+      }
+      if (schedule.length > 0) {
+        copyTask.value += `[ 금주 예정 사항 ] \n`;
+        schedule.map((task) => {
+          copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
+        });
+      }
+    });
   } else {
-    tasks.map((task) => {
-      copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
+    checked.map((task) => {
+      if (task.tasks.length <= 0) return;
+      copyTask.value += `[ ${task.name} ] \n`;
+      const completed = task.tasks.filter((task) => task.completed);
+      const notCompleted = task.tasks.filter((task) => !task.completed);
+      if (completed.length > 0) {
+        copyTask.value += `[ 완료 사항 ] \n`;
+        completed.map((task) => {
+          copyTask.value += `  ${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
+        });
+      }
+      if (notCompleted.length > 0) {
+        copyTask.value += `[ 미완료 사항 ] \n`;
+        notCompleted.map((task) => {
+          copyTask.value += `  ${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
+        });
+      }
     });
   }
-
-  // navigator.clipboard.writeText(item.name);
-  // alert("복사되었습니다.");
-};
-
-const handleOnClickCopy = async () => {
-  // showCopyModal.value = true;
-  console.log(copyTask.value);
-  if (!copyTask.value) return;
-
-  navigator.clipboard.writeText(copyTask.value);
-  alert("복사되었습니다.");
+  showCopyModal.value = true;
 };
 </script>
 
@@ -348,18 +366,6 @@ const handleOnClickCopy = async () => {
         <div class="w-full flex-1 h-full [&_*]:text-white">
           <MemberTaskList :items="currentTask" :week="isWeek" @update="currentTask = $event" />
         </div>
-      </div>
-      <div
-        class="overflow-hidden transition-all mb-[40px] flex flex-col gap-[20px] items-end justify-end w-full"
-        :class="[copyTask ? 'h-[600px]' : 'h-0']"
-      >
-        <DefaultButton text="복사" :onClick="handleOnClickCopy" />
-
-        <textarea
-          :value="copyTask"
-          @input="copyTask = $event.target.value"
-          class="resize-none w-full max-h-[500px] h-full p-[20px] bg-[#2d2d2d] text-white rounded-[8px] outline-none border-[1px] border-white"
-        />
       </div>
     </div>
   </div>
