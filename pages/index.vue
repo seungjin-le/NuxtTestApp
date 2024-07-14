@@ -346,7 +346,7 @@ const handleOnClickCopy = async () => {
         </div>
 
         <div class="w-full flex-1 h-full [&_*]:text-white">
-          <MemberTaskList :items="currentTask" :week="isWeek" />
+          <MemberTaskList :items="currentTask" :week="isWeek" @update="currentTask = $event" />
         </div>
       </div>
       <div

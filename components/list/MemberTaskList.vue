@@ -1,6 +1,6 @@
 <script setup>
 const CheckBox = defineAsyncComponent(() => import("@/components/buttons/DefaultCheckBox.vue"));
-
+const emit = defineEmits(["update"]);
 const { items, week } = defineProps({
   items: {
     type: Array,
@@ -14,29 +14,26 @@ const { items, week } = defineProps({
   },
 });
 
-const members = useState("members", () => []);
 const checkedAll = useState("checkedAll", () => false);
-
-onMounted(() => {
-  members.value = items.value;
-});
 
 const handleCheckboxClick = (item) => {
   item.checked = !item.checked;
 };
-const handleCheckboxAllClick = () => {
-  console.log(items);
-  if (members.value.length <= 0) return;
+
+const handleCheckboxAllClick = (newItems) => {
+  if (newItems.length <= 0) return;
 
   checkedAll.value = !checkedAll.value;
 
-  members.value = members.map((member) => {
+  const temp = newItems.map((member) => {
     member[week ? "weekTasks" : "tasks"].map((item) => {
       item.checked = checkedAll.value;
       return item;
     });
     return member;
   });
+
+  emit("update", temp);
 };
 </script>
 
