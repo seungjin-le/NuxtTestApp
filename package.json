@@ -17,10 +17,12 @@
     "@nuxtjs/mdc": "^0.8.2",
     "@pinia/nuxt": "^0.5.1",
     "@tanstack/vue-query": "^5.45.0",
+    "@tresjs/core": "^4.2.1",
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
     "nuxt": "^3.12.2",
     "tailwind-scrollbar-hide": "^1.1.7",
+    "three": "^0.166.1",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
