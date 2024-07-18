@@ -9,11 +9,13 @@ export default {
 </script>
 
 <template>
-  <div class="bg-[#2d2d2d] w-full h-full min-h-[100vh] flex flex-col items-center justify-between">
-    <Section>
-      <Header />
-      <NuxtPage />
-    </Section>
-    <Footer />
+  <div class="bg-[#2d2d2d] w-full">
+    <div class="w-full max-w-[1320px] h-full min-h-[100vh] flex flex-col items-center justify-between">
+      <Section>
+        <Header />
+        <NuxtPage />
+      </Section>
+      <Footer />
+    </div>
   </div>
 </template>
