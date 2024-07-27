@@ -1,11 +1,7 @@
-<script>
-export default {
-  components: {
-    Header: defineAsyncComponent(() => import("~/components/containers/Header.vue")),
-    Footer: defineAsyncComponent(() => import("~/components/containers/Footer.vue")),
-    Section: defineAsyncComponent(() => import("~/components/containers/Section.vue")),
-  },
-};
+<script setup>
+const Header = defineAsyncComponent(() => import("~/components/containers/Header.vue"));
+const Footer = defineAsyncComponent(() => import("~/components/containers/Footer.vue"));
+const Section = defineAsyncComponent(() => import("~/components/containers/Section.vue"));
 </script>
 
 <template>
