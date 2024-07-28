@@ -32,9 +32,7 @@ const { isLoading, isError, data, error } = useQuery({
   queryFn: () => $fetch(`api/v1/projects`),
 });
 
-const resetCurrentTask = () => {
-  currentTask.value = [];
-};
+const resetCurrentTask = () => (currentTask.value = []);
 
 const getTask = async (gid) => {
   if (gid === currentGid.value || taskIsLoading.value) return;
