@@ -6,5 +6,9 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "prettier.useTabs": false,
   "prettier.vueIndentScriptAndStyle": true,
-  "prettier.withNodeModules": true
+  "prettier.withNodeModules": true,
+  "doki.background.enabled": false,
+  "doki.sticker.css": "display:none;",
+  "doki.wallpaper.enabled": false,
+  "doki.sticker.path": ""
 }
