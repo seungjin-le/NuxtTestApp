@@ -24,3 +24,7 @@ logs
 .env.*
 !.env.example
 
+.vscode
+/.vscode
+.idea
+/.idea
