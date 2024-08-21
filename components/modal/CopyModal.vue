@@ -10,7 +10,7 @@ const { content } = defineProps({
 const handleOnClickCopy = async () => {
   if (!content) return;
 
-  navigator.clipboard.writeText(content);
+  await navigator.clipboard.writeText(content);
   alert("복사되었습니다.");
 };
 </script>
