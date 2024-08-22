@@ -1,12 +1,4 @@
-<script>
-import { defineComponent } from "vue";
-export default defineComponent({
-  name: "Footer",
-  setup() {
-    return {};
-  },
-});
-</script>
+<script setup></script>
 <template>
   <div class="text-white text-end py-[14px] px-[20px]">
     <div class="text-[24px] font-bold">Asana Task</div>
