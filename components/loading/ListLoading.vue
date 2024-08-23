@@ -1,3 +1,5 @@
+<script setup></script>
+
 <template>
   <div class="loading-container">
     <div class="loading" />
