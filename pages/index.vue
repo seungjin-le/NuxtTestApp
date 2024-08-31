@@ -7,10 +7,7 @@ const DefaultButton = defineAsyncComponent(() => import("~/components/buttons/De
 const MemberTaskList = defineAsyncComponent(() => import("~/components/list/MemberTaskList.vue"));
 const CheckBox = defineAsyncComponent(() => import("@/components/buttons/DefaultCheckBox.vue"));
 const CopyModal = defineAsyncComponent(() => import("~/components/modal/CopyModal.vue"));
-definePageMeta({
-  title: "Asana Task",
-  layout: "default",
-});
+
 const config = useRuntimeConfig();
 const queryClient = useQueryClient();
 const api_url = "https://app.asana.com/api/1.0";
@@ -27,7 +24,7 @@ const currentTask = useState("currentTask", () => []);
 const isWeek = useState("isWeek", () => false);
 const showCopyModal = useState("showCopyModal", () => false);
 
-const { isLoading, isError, data, error } = useQuery({
+const { isLoading, isError, data, error } = await useQuery({
   queryKey: ["projects"],
   queryFn: () => $fetch(`api/v1/projects`),
 });

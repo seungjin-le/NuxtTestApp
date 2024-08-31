@@ -1,3 +1,7 @@
 {
-  "extends": "../.nuxt/tsconfig.server.json"
+  "extends": "../.nuxt/tsconfig.server.json",
+  "compilerOptions": {
+    "outDir": "./dist" // 출력 디렉토리 설정
+  },
+  "exclude": ["node_modules", "dist"]
 }

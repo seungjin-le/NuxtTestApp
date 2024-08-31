@@ -1,7 +1,7 @@
 <script setup>
-const Header = defineAsyncComponent(() => import("~/components/containers/Header.vue"));
-const Footer = defineAsyncComponent(() => import("~/components/containers/Footer.vue"));
-const Section = defineAsyncComponent(() => import("~/components/containers/Section.vue"));
+const Header = defineAsyncComponent(() => import("@/components/containers/Header.vue"));
+const Footer = defineAsyncComponent(() => import("@/components/containers/Footer.vue"));
+const Section = defineAsyncComponent(() => import("@/components/containers/Section.vue"));
 </script>
 
 <template>
