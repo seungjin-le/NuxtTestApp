@@ -18,7 +18,16 @@ export default defineNuxtConfig({
       NUXT_ENV_API_KEY: process.env.NUXT_ENV_API_KEY,
     },
   },
-
+  vite: {
+    server: {
+      proxy: {
+        "/api/v1": {
+          target: process.env.NUXT_ENV_API_KEY,
+          changeOrigin: true,
+        },
+      },
+    },
+  },
   pinia: {
     storesDirs: ["./stores/**"],
   },
