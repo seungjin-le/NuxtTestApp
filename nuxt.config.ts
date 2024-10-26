@@ -7,10 +7,6 @@ export default defineNuxtConfig({
     head: {
       title: "Asana Task",
       meta: [{ name: "viewport", content: "width=device-width, initial-scale=1" }],
-      // script: [{ src: "" }],
-      // link: [{ rel: "", href: "" }],
-      // style: [{ children: "", type: "" }],
-      // noscript: [{ children: "" }],
     },
   },
   runtimeConfig: {
@@ -26,6 +22,12 @@ export default defineNuxtConfig({
           changeOrigin: true,
         },
       },
+    },
+  },
+  nitro: {
+    "/api/v1/": {
+      target: process.env.NUXT_ENV_API_KEY,
+      changeOrigin: true,
     },
   },
   pinia: {
