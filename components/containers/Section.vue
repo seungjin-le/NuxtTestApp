@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-  <section class="w-full mx-auto">
+  <div class="size-full mx-auto flex-1">
     <slot />
-  </section>
+  </div>
 </template>

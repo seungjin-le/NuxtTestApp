@@ -1,365 +1,140 @@
 <script setup>
-import axios from "axios";
-import dayjs from "dayjs";
+import { Cropper, Preview } from "vue-advanced-cropper";
+import "vue-advanced-cropper/dist/style.css";
 
-const ListLoading = defineAsyncComponent(() => import("~/components/loading/ListLoading.vue"));
-const DefaultButton = defineAsyncComponent(() => import("~/components/buttons/DefaultButton.vue"));
-const MemberTaskList = defineAsyncComponent(() => import("~/components/list/MemberTaskList.vue"));
-const CheckBox = defineAsyncComponent(() => import("@/components/buttons/DefaultCheckBox.vue"));
-const CopyModal = defineAsyncComponent(() => import("~/components/modal/CopyModal.vue"));
-
-const config = useRuntimeConfig();
-const queryClient = useQueryClient();
-const api_url = "https://app.asana.com/api/1.0";
-const token = config.public.NUXT_ENV_API_KEY;
-const currentGid = useState("currentGid", () => "");
-const members = useState("members", () => []);
-const sections = useState("sections", () => []);
-const taskIsLoading = useState("taskIsLoading", () => false);
-const memberIsLoading = useState("memberIsLoading", () => false);
-const asana = useState("asana", () => []);
-const copyTask = useState("copyTask", () => "");
-const currentTab = useState("currentTab", () => 1);
-const currentTask = useState("currentTask", () => []);
-const isWeek = useState("isWeek", () => false);
-const showCopyModal = useState("showCopyModal", () => false);
-
-const { isLoading, isError, data, error } = await useQuery({
-  queryKey: ["projects"],
-  queryFn: () => $fetch(`api/v1/projects`),
+const img = ref("");
+const sliceImg = ref("");
+const result = reactive({
+  image: "",
+  coordinates: {},
+});
+const editor = ref(null);
+const position = reactive({
+  width: 0,
+  height: 0,
+  left: 0,
+  top: 0,
 });
 
-const resetCurrentTask = () => (currentTask.value = []);
+const change = (data) => {};
 
-const getTask = async (gid) => {
-  if (gid === currentGid.value || taskIsLoading.value) return;
-
-  taskIsLoading.value = true;
-  memberIsLoading.value = true;
-  currentGid.value = gid;
-  resetCurrentTask();
-
-  await axios
-    .get(`api/v1/projects/detail?gid=${gid}`)
-    .then(async ({ data }) => {
-      sections.value = data.data;
-      await getMembers({ gid });
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-    });
-
-  taskIsLoading.value = false;
+const runtimeSlice = (data) => {
+  result.image = data.image;
+  result.coordinates = data.coordinates;
 };
 
-const getMembers = async ({ gid }) => {
-  if (!gid) return;
-
-  await getData({ gid });
-  await axios
-    .get(`api/v1/projects/members?gid=${gid}`)
-    .then(({ data }) => {
-      members.value = data;
-      members.value.members.map((member) => {
-        member.tasks = asana.value.filter(({ assignee }) => assignee?.gid === member.gid);
-
-        member.week = false;
-        member.weekTasks = member.tasks.filter((task) => {
-          return (
-            dayjs(task.due_on) > dayjs(new Date()) &&
-            dayjs(task.due_on) < dayjs(new Date().setDate(new Date().getDate() + 7))
-          );
-        });
-      });
-    })
-    .catch((error) => {
-      members.value = [];
-    });
-
-  memberIsLoading.value = false;
+const changeFile = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  img.value = URL.createObjectURL(file);
 };
 
-const getTaskList = async ({ gid }) => {
-  if (!gid) return;
-  const opt_fields = "name,due_on,start_on,completed,assignee.name";
-  const opt_pretty = "true";
-  await axios
-    .get(`${api_url}/projects/${gid}/tasks?opt_pretty=${opt_pretty}&opt_fields=${opt_fields}`, {
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(async ({ data }) => {})
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-    });
+const getCoordinates = () => {
+  const { coordinates, canvas } = editor.value.getResult();
+
+  position.width = coordinates.width;
+  position.height = coordinates.height;
+  position.left = coordinates.left;
+  position.top = coordinates.top;
+
+  sliceImg.value = canvas.toDataURL();
 };
+const version = ref(1);
 
-const getData = async ({ gid }) => {
-  await axios
-    .get(`api/v1/projects/tasks?gid=${gid}`)
-    .then(({ data }) => {
-      asana.value = data.data;
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-    });
-};
+const download = () => {
+  if (version.value !== 3 && !sliceImg.value) return;
+  if (version.value === 3 && !result.image) return;
+  const a = document.createElement("a");
 
-const handleOnClickCopyTask = async () => {
-  const item = currentTask.value;
-
-  if (!item || item.length <= 0) return;
-  const tasks = item.filter((item) => (isWeek.value ? item.weekTasks : item.tasks));
-
-  const checked = tasks.map((task) => {
-    return {
-      name: task.name,
-      tasks: task.tasks.filter((task) => task.checked),
-    };
-  });
-
-  const completed = checked.map((task) => task.tasks.filter((task) => task.completed));
-
-  const notCompleted = checked.map((task) => task.tasks.filter((task) => !task.completed));
-  const notDone = notCompleted.map((task) => task.filter((task) => dayjs(task.due_on) < dayjs(new Date())));
-  const done = notCompleted.map((task) => task.filter((task) => dayjs(task.due_on) > dayjs(new Date())));
-
-  copyTask.value = ``;
-
-  if (isWeek.value) {
-    checked.map((task) => {
-      if (task.tasks.length <= 0) return;
-      copyTask.value += `[ ${task.name} ] \n`;
-      const completed = task.tasks.filter((task) => task.completed && dayjs(task.due_on) > dayjs(new Date()));
-      const notCompleted = task.tasks.filter((task) => !task.completed && dayjs(task.due_on) > dayjs(new Date()));
-      const schedule = task.tasks.filter((task) => !task.completed);
-      if (completed.length > 0) {
-        copyTask.value += `[ 전주 완료 사항 ] \n`;
-        completed.map((task) => {
-          copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-        });
-      }
-      if (notCompleted.length > 0) {
-        copyTask.value += `[ 전주 미완료 사항 ] \n`;
-        notCompleted.map((task) => {
-          copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-        });
-      }
-      if (schedule.length > 0) {
-        copyTask.value += `[ 금주 예정 사항 ] \n`;
-        schedule.map((task) => {
-          copyTask.value += `${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-        });
-      }
-    });
-  } else {
-    checked.map((task) => {
-      if (task.tasks.length <= 0) return;
-      copyTask.value += `[ ${task.name} ] \n`;
-      const completed = task.tasks.filter((task) => task.completed);
-      const notCompleted = task.tasks.filter((task) => !task.completed);
-      if (completed.length > 0) {
-        copyTask.value += `[ 완료 사항 ] \n`;
-        completed.map((task) => {
-          copyTask.value += `  ${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-        });
-      }
-      if (notCompleted.length > 0) {
-        copyTask.value += `[ 미완료 사항 ] \n`;
-        notCompleted.map((task) => {
-          copyTask.value += `  ${item.tag ? `[ ${item.tag} ] ` : ""}${task.name} \n`;
-        });
-      }
-    });
-  }
-  showCopyModal.value = true;
+  a.href = version.value !== 3 ? sliceImg.value : result.image;
+  a.download = "slice.png";
+  a.click();
 };
 </script>
 
 <template>
-  <CopyModal v-if="showCopyModal" :content="copyTask" @close="showCopyModal = false" />
-  <div class="w-full h-auto [&_*]:text-whit py-[40px]">
-    <div class="flex flex-col max-w-[1280px] gap-[50px] mx-auto px-[10px]">
-      <div class="flex flex-row gap-[10px] items-start justify-center">
-        <div class="flex-1 max-w-[50%] flex flex-col">
-          <div>
-            <div
-              class="px-[20px] text-[32px] border-[1px] inline-block rounded-t-[8px] relative bg-[#3d3d3d] border-b-0 text-white"
-            >
-              Projects
-              <div class="absolute top-full left-0 w-full h-[1px] bg-[#3d3d3d]" />
-            </div>
-          </div>
-          <div
-            class="flex flex-col items-center justify-center rounded-[8px] overflow-hidden bg-[#3d3d3d] border-[1px] border-white rounded-tl-none"
-          >
-            <div v-if="isLoading" class="w-full h-full flex flex-col items-center justify-center">
-              <ListLoading />
-            </div>
-            <div
-              v-else
-              v-for="(item, index) in data?.data"
-              @click="item.gid !== currentGid && getTask(item.gid)"
-              :key="item.gid"
-              class="h-[50px] text-white flex items-center justify-start b order- white bo rder -[1px] overflow-hidden px-[20px] transition-all w-full"
-              :class="{
-                'bg-[#2d2d2d] ': item.gid === currentGid,
-                'bg-[#3d3d3d] cursor-pointer': item.gid !== currentGid,
-                'border-t-[1px]': index !== 0,
-              }"
-            >
-              {{ item.name }}
-            </div>
-          </div>
-        </div>
-        <div class="max-w-[50%] w-full flex flex-col">
-          <div
-            class="flex flex-row min-h-[50px] max-h-[50px] [&>div]:text-[32px] [&>div]:px-[20px] [&>div]:border-[1px] [&>div]:!border-b-0 text-white [&>div]:border-white [&>div]:rounded-t-[8px] [&>div]:relative [&>div]:transition-all [&>div]:cursor-pointer"
-          >
-            <div
-              @click="currentTab = 0"
-              :class="{
-                'bg-[#2d2d2d]': currentTab !== 0,
-                'bg-[#3d3d3d]': currentTab === 0,
-              }"
-            >
-              Task
-              <div
-                class="absolute top-full left-0 w-full h-[1px]"
-                :class="{
-                  'bg-[#3d3d3d]': currentTab === 0,
-                  'hidden d': currentTab !== 0,
-                }"
-              />
-            </div>
-            <div
-              @click="currentTab = 1"
-              :class="{
-                'bg-[#2d2d2d]': currentTab !== 1,
-                'bg-[#3d3d3d]': currentTab === 1,
-              }"
-            >
-              Members
-              <div
-                class="absolute top-full left-0 w-full h-[1px]"
-                :class="{
-                  'bg-[#3d3d3d]': currentTab === 1,
-                  'hidden s': currentTab !== 1,
-                }"
-              />
-            </div>
-          </div>
-          <div
-            class="bg-[#3d3d3d] w-full flex border-[1px] border-white rounded-[8px] rounded-tl-none overflow-hidden"
-            :class="{
-              'min-h-[300px]': !currentGid,
-            }"
-          >
-            <div class="w-full flex flex-col items-start justify-start relative" v-if="currentTab === 0">
-              <div class="absolute top-0 left-0 w-full h-full z-2 text-white">
-                <div class="relative w-full h-full">
-                  <div class="z-[2] absolute w-full h-full bg-[#2d2d2d] opacity-40"></div>
-                  <div class="z-[3] relative flex w-full h-full items-center justify-center text-[32px]">준비중</div>
-                </div>
-              </div>
-              <div v-if="!currentGid" class="w-full h-full flex flex-col items-center justify-center text-white">
-                프로젝트를 선택해주세요.
-              </div>
-              <div v-else-if="taskIsLoading" class="w-full h-full flex flex-col items-center justify-center">
-                <ListLoading />
-              </div>
-              <div v-else class="w-full flex flex-col justify-start h-full">
-                <div
-                  class="h-[50px] flex items-center justify-start px-[20px] text-white border-white border-t-[1px] bg-[#3d3d3d] transition-all cursor-pointer"
-                  :class="{
-                    '!border-t-0 border-b-[1px]': index === 0 && index === sections.length - 1,
-                    '!border-t-0 ': index === 0,
-                  }"
-                  v-for="(item, index) in sections"
-                  :key="item.gid"
-                >
-                  {{ item.name }}
-                </div>
-              </div>
-            </div>
-            <div class="w-full rounded-[8px] overflow-hidden bg-[#3d3d3d]" v-if="currentTab === 1">
-              <div v-if="!currentGid" class="w-full h-full flex flex-col items-center justify-center text-white">
-                프로젝트를 선택해주세요.
-              </div>
-              <div v-else-if="memberIsLoading" class="w-full h-full flex flex-col items-center justify-center">
-                <ListLoading />
-              </div>
-              <div v-else class="w-full flex flex-col">
-                <div
-                  class="h-[50px] flex flex-col items-start justify-start text-white border-white border-t-[1px] transition-all"
-                  v-for="(item, index) in members?.members"
-                  :class="{
-                    '!border-t-0 border-b-[1px]': index === 0 && index === sections.length - 1,
-                    '!border-t-0 ': index === 0,
-                  }"
-                  :key="item.gid"
-                >
-                  <div
-                    class="min-h-[50px] max-h-[50px] overflow-y-auto flex items-center justify-start cursor-pointer w-full px-[40px] transition-all"
-                    :class="[item?.checked ? 'bg-[#2d2d2d]' : 'bg-[#3d3d3d]']"
-                    @click="
-                      () => {
-                        item['checked'] = !item['checked'];
-                        if (item['checked']) {
-                          currentTask.push({ ...item });
-                        } else {
-                          currentTask = currentTask.filter((task) => task.gid !== item.gid);
-                        }
-                      }
-                    "
-                  >
-                    <div class="flex flex-row items-center justify-center gap-[10px]">
-                      <div class="flex items-center justify-center gap-[10px]">
-                        <CheckBox :item="item" />
-                      </div>
-                      <div>
-                        {{ item.name }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+  <div class="size-full flex-1 flex-col-center gap-[20px]">
+    <div class="flex-row-center gap-2">
+      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="version = 1">
+        비율 고정
+      </button>
+      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="version = 2">
+        이미지고정
+      </button>
+      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="version = 3">
+        Version 3
+      </button>
+    </div>
+    <div class="flex-row-center gap-2">
+      <input type="file" @change="changeFile" />
+      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="getCoordinates">
+        자르기
+      </button>
+      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="download">
+        다운로드
+      </button>
+    </div>
+    <div class="flex-row-center gap-[20px] relative">
+      <div v-if="version === 1">
+        <Cropper
+          ref="editor"
+          class="w-[800px] h-[800px] bg-n40"
+          :src="img"
+          @change="change"
+          :stencil-props="{
+            aspectRatio: 16 / 4, // 시작 비율 16:4
+            minAspectRatio: 16 / 4, // 최소 비율 16:4
+            maxAspectRatio: 16 / 4, // 최대 비율 16:4
+            // movable: false,
+            // resizable: false,
+          }"
+        />
+        <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
+          <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
         </div>
       </div>
-
-      <div class="flex flex-col gap-[20px]">
-        <div class="flex flex-row items-center justify-end w-full gap-[10px] [&_*]:text-white">
-          <div
-            class="max-h-[40px] overflow-hidden flex flex-row items-center justify-center border-[1px] rounded-[8px] w-[340px]"
-          >
-            <div class="flex-1 max-w-[60px] flex items-center justify-center border-r-[1px] h-[40px]">태그</div>
-            <input
-              type="text"
-              :value="currentTask.tag || ''"
-              @input="currentTask.tag = $event.target.value"
-              class="min-w-[280px] flex-1 min-h-[40px] max-h-[40px] outline-none border-none rounded-[8px] bg-[#2d2d2d] px-[10px]"
-            />
-          </div>
-          <DefaultButton text="복사" :onClick="handleOnClickCopyTask" />
-          <DefaultButton
-            text="최근 7일"
-            :onClick="() => (isWeek = !isWeek)"
-            :class="[isWeek ? 'bg-[#3d3d3d]' : 'bg-[#2d2d2d]']"
-          />
-          <DefaultButton
-            text="전체"
-            :onClick="() => (isWeek = !isWeek)"
-            :class="[isWeek ? 'bg-[#2d2d2d]' : 'bg-[#3d3d3d]']"
-          />
+      <div v-if="version === 2">
+        <Cropper
+          ref="editor"
+          class="w-[800px] h-[800px] bg-n40"
+          :src="img"
+          @change="change"
+          :stencil-size="{
+            width: 500,
+            height: 500,
+          }"
+          :stencil-props="{
+            aspectRatio: 16 / 4, // 시작 비율 16:4
+            movable: false,
+            resizable: false,
+          }"
+          image-restriction="stencil"
+        />
+        <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
+          <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
         </div>
-
-        <div class="w-full flex-1 h-full [&_*]:text-white">
-          <MemberTaskList :items="currentTask" :week="isWeek" @update="currentTask = $event" />
+      </div>
+      <div v-if="version === 3">
+        <Cropper
+          ref="editor"
+          class="w-[800px] h-[800px] bg-n40"
+          :src="img"
+          @change="runtimeSlice"
+          :debounce="false"
+          :stencil-props="{
+            aspectRatio: 16 / 4, // 시작 비율 16:4
+            minAspectRatio: 16 / 4, // 최소 비율 16:4
+            maxAspectRatio: 16 / 4, // 최대 비율 16:4
+          }"
+        />
+        <div class="absolute top-full translate-y-[20px] right-0 bg-n40 flex-row-center">
+          <Preview
+            v-if="result.image"
+            :width="result.coordinates.width"
+            :height="result.coordinates.height"
+            :image="result.image"
+            :coordinates="result.coordinates"
+          />
         </div>
       </div>
     </div>

@@ -1,17 +1,9 @@
-<script setup>
-const Header = defineAsyncComponent(() => import("@/components/containers/Header.vue"));
-const Footer = defineAsyncComponent(() => import("@/components/containers/Footer.vue"));
-const Section = defineAsyncComponent(() => import("@/components/containers/Section.vue"));
-</script>
+<script setup></script>
 
 <template>
-  <div class="bg-[#2d2d2d] w-full min-h-[100dvh]">
-    <div class="w-full max-w-[1320px] h-full min-h-[100vh] flex flex-col items-center justify-between mx-auto">
-      <Section>
-        <Header />
-        <NuxtPage />
-      </Section>
-      <Footer />
+  <div class="bg-[#2d2d2d] w-full min-h-[100dvh] h-full">
+    <div class="size-full max-w-[1320px] min-h-[100vh] flex-col-center-between mx-auto">
+      <NuxtPage />
     </div>
   </div>
 </template>
