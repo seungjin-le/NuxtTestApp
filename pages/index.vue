@@ -1,142 +1,113 @@
+<!-- <script setup>
+import * as XLSX from "xlsx";
+import { XlsxRead, XlsxTable, XlsxSheets, XlsxJson, XlsxWorkbook, XlsxSheet, XlsxDownload } from "vue3-xlsx";
+import { ref } from "vue";
+
+const file = ref(null);
+const items = ref([]);
+
+const sheets = [{ name: "", data: [] }];
+const collection = [{ a: 1, b: 2 }];
+const selectedSheet = ref(null);
+const onChange = (event) => {
+  if (!event.target.files) return;
+
+  file.value = event.target.files[0];
+};
+</script> -->
+
 <script setup>
-import { Cropper, Preview } from "vue-advanced-cropper";
-import "vue-advanced-cropper/dist/style.css";
+import * as XLSX from "xlsx";
+import { ref } from "vue";
 
-const img = ref("");
-const sliceImg = ref("");
-const result = reactive({
-  image: "",
-  coordinates: {},
-});
-const editor = ref(null);
-const position = reactive({
-  width: 0,
-  height: 0,
-  left: 0,
-  top: 0,
-});
+const file = ref(null);
+const items = ref([]);
+const headers = ref([]);
+const onChange = (event) => {
+  if (!event.target.files) return;
 
-const change = (data) => {};
-
-const runtimeSlice = (data) => {
-  result.image = data.image;
-  result.coordinates = data.coordinates;
-};
-
-const changeFile = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  img.value = URL.createObjectURL(file);
-};
-
-const getCoordinates = () => {
-  const { coordinates, canvas } = editor.value.getResult();
-
-  position.width = coordinates.width;
-  position.height = coordinates.height;
-  position.left = coordinates.left;
-  position.top = coordinates.top;
-
-  sliceImg.value = canvas.toDataURL();
-};
-const version = ref(1);
-
-const download = () => {
-  if (version.value !== 3 && !sliceImg.value) return;
-  if (version.value === 3 && !result.image) return;
-  const a = document.createElement("a");
-
-  a.href = version.value !== 3 ? sliceImg.value : result.image;
-  a.download = "slice.png";
-  a.click();
+  file.value = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    console.log(jsonData);
+    headers.value = jsonData[0];
+    jsonData.shift();
+    items.value = jsonData.map((row) => {
+      return row.reduce((acc, val, index) => {
+        acc[`${headers.value[index]}`] = val;
+        return acc;
+      }, {});
+    });
+  };
+  reader.readAsArrayBuffer(file.value);
 };
 </script>
 
 <template>
-  <div class="size-full flex-1 flex-col-center gap-[20px]">
-    <div class="flex-row-center gap-2">
-      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="version = 1">
-        비율 고정
-      </button>
-      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="version = 2">
-        이미지고정
-      </button>
-      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="version = 3">
-        Version 3
-      </button>
-    </div>
-    <div class="flex-row-center gap-2">
-      <input type="file" @change="changeFile" />
-      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="getCoordinates">
-        자르기
-      </button>
-      <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="download">
-        다운로드
-      </button>
-    </div>
-    <div class="flex-row-center gap-[20px] relative">
-      <div v-if="version === 1">
-        <Cropper
-          ref="editor"
-          class="w-[800px] h-[800px] bg-n40"
-          :src="img"
-          @change="change"
-          :stencil-props="{
-            aspectRatio: 16 / 4, // 시작 비율 16:4
-            minAspectRatio: 16 / 4, // 최소 비율 16:4
-            maxAspectRatio: 16 / 4, // 최대 비율 16:4
-            // movable: false,
-            // resizable: false,
-          }"
-        />
-        <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
-          <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
-        </div>
-      </div>
-      <div v-if="version === 2">
-        <Cropper
-          ref="editor"
-          class="w-[800px] h-[800px] bg-n40"
-          :src="img"
-          @change="change"
-          :stencil-size="{
-            width: 500,
-            height: 500,
-          }"
-          :stencil-props="{
-            aspectRatio: 16 / 4, // 시작 비율 16:4
-            movable: false,
-            resizable: false,
-          }"
-          image-restriction="stencil"
-        />
-        <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
-          <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
-        </div>
-      </div>
-      <div v-if="version === 3">
-        <Cropper
-          ref="editor"
-          class="w-[800px] h-[800px] bg-n40"
-          :src="img"
-          @change="runtimeSlice"
-          :debounce="false"
-          :stencil-props="{
-            aspectRatio: 16 / 4, // 시작 비율 16:4
-            minAspectRatio: 16 / 4, // 최소 비율 16:4
-            maxAspectRatio: 16 / 4, // 최대 비율 16:4
-          }"
-        />
-        <div class="absolute top-full translate-y-[20px] right-0 bg-n40 flex-row-center">
-          <Preview
-            v-if="result.image"
-            :width="result.coordinates.width"
-            :height="result.coordinates.height"
-            :image="result.image"
-            :coordinates="result.coordinates"
-          />
-        </div>
-      </div>
+  <div class="flex-col-center w-full h-full">
+    <input type="file" @change="onChange" />
+    <div v-if="items.length" class="max-w-[1240px] max-h-[800px] overflow-auto size-full flex-1 text-nowrap">
+      <table>
+        <thead>
+          <tr>
+            <th v-for="(header, index) in headers" :key="index">{{ header }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, rowIndex) in items" :key="rowIndex">
+            <td v-for="(value, colIndex) in item" :key="`${rowIndex}-${colIndex}`">{{ value }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
+<style scoped>
+table {
+  width: 100%;
+}
+tr,
+td {
+  border: 1px solid #fff;
+}
+</style>
+<!-- <template>
+  <div class="flex-col-center w-full h-full">
+    <input type="file" @change="onChange" />
+
+    <div
+      class="size-full [&_td]:px-[20px] [&_table]:border-collapse [&_tr]:border-1 [&_td]:border-1 [&_tr]:h-[28px] relative [&_*]:transition-all [&_span]:max-h-[300px] [&_span]:overflow-auto"
+    >
+      <xlsx-read :file="file">
+        <xlsx-sheets>
+          <template #default="{ sheets }">
+            <div class="absolute top-full left-0 flex-row-center translate-y-[10px]">
+              <div
+                v-for="(sheet, index) in sheets"
+                :key="sheet"
+                @click="selectedSheet = sheet"
+                class="px-[10px] rounded-[5px] border-t-1 text-center text-m2 transition-all"
+                :class="{
+                  'border-r-1': index !== 0,
+                  'border-x-1': index === 0,
+                  'bg-[#fff]': sheet === selectedSheet,
+                  'cursor-pointer bg-[gray]': sheet !== selectedSheet,
+                }"
+              >
+                {{ sheet }}
+              </div>
+            </div>
+          </template>
+        </xlsx-sheets>
+        <div class="max-w-[100%] overflow-auto h-[1000px] max-h-[1000px]">
+          <xlsx-table :sheet="selectedSheet" />
+        </div>
+      </xlsx-read>
+    </div>
+  </div>
+</template> -->
