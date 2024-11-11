@@ -3778,6 +3778,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"canvas-datagrid@npm:^0.4.7":
+  version: 0.4.7
+  resolution: "canvas-datagrid@npm:0.4.7"
+  dependencies:
+    is-printable-key-event: "npm:1.0.0"
+  checksum: 10c0/ebcb2ad9321afaa4b933a660472f34484875e360e86dc0b93740bf17536af2982c3238a31c3771fc03f337c753932cafae3b03d8f2669fbd9fd3dfecdcb4e355
+  languageName: node
+  linkType: hard
+
 "ccount@npm:^2.0.0":
   version: 2.0.1
   resolution: "ccount@npm:2.0.1"
@@ -6371,6 +6380,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-printable-key-event@npm:1.0.0":
+  version: 1.0.0
+  resolution: "is-printable-key-event@npm:1.0.0"
+  checksum: 10c0/d7ac21921f4cad1cf389edfcaf4dee248dd19a98aae1f999b5ee1060bdd52038fc71f62d1935696676cd4cbfda30c6713c759f7f9411cc806c7bb7f440a59602
+  languageName: node
+  linkType: hard
+
 "is-reference@npm:1.2.1":
   version: 1.2.1
   resolution: "is-reference@npm:1.2.1"
@@ -7912,6 +7928,7 @@ __metadata:
     "@tresjs/core": "npm:^4.2.1"
     autoprefixer: "npm:^10.4.19"
     axios: "npm:^1.7.2"
+    canvas-datagrid: "npm:^0.4.7"
     dayjs: "npm:^1.11.11"
     nuxt: "npm:^3.13.0"
     postcss: "npm:^8.4.38"

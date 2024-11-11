@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import * as XLSX from "xlsx";
 
-import canvasDatagrid from "canvas-datagrid";
+// import canvasDatagrid from "canvas-datagrid";
 
 const jsondata = ref([]);
 const headers = ref([]);
@@ -26,11 +26,11 @@ const handleFileChange = (event) => {
       Object.keys(item).forEach((key) => (arr.includes(key) ? null : arr.push(key)));
     });
     headers.value = arr.map((item) => ({ field: item, label: item }));
-    console.log(jsondata.value, headers.value);
-    table.value = canvasDatagrid({
-      parentNode: document.getElementById("gridctr"),
-      data: jsondata.value,
-    });
+
+    // table.value = canvasDatagrid({
+    //   parentNode: document.getElementById("gridctr"),
+    //   data: jsondata.value,
+    // });
   };
 
   reader.readAsArrayBuffer(file.value);
@@ -69,7 +69,7 @@ const headerRefs = ref([]);
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, index) in jsondata" :key="`rows_${index}`" @blur="() => (row.editing = false)">
+          <tr v-for="(row, index) in jsondata" :key="`rows_${index}`" ta @blur="() => (row.editing = false)">
             <td v-for="header in headers" class="relative" @blur="() => (row.editing = false)">
               <div
                 class="absolute inset-0 size-full bg-blue-0 cursor-pointer focus:border-[green] transition-all"
@@ -102,15 +102,12 @@ table {
   width: 100%;
   height: 100%;
 }
-
 th {
   padding: 10px;
 }
-
 td > input {
   padding: 10px;
 }
-
 th,
 td {
   text-wrap: nowrap;
