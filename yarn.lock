@@ -573,6 +573,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.21.0":
+  version: 7.26.0
+  resolution: "@babel/runtime@npm:7.26.0"
+  dependencies:
+    regenerator-runtime: "npm:^0.14.0"
+  checksum: 10c0/12c01357e0345f89f4f7e8c0e81921f2a3e3e101f06e8eaa18a382b517376520cd2fa8c237726eb094dab25532855df28a7baaf1c26342b52782f6936b07c287
+  languageName: node
+  linkType: hard
+
 "@babel/standalone@npm:^7.23.8":
   version: 7.24.7
   resolution: "@babel/standalone@npm:7.24.7"
@@ -3101,6 +3110,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vuepic/vue-datepicker@npm:^3.3.0":
+  version: 3.6.8
+  resolution: "@vuepic/vue-datepicker@npm:3.6.8"
+  dependencies:
+    date-fns: "npm:^2.29.3"
+    date-fns-tz: "npm:^1.3.7"
+  peerDependencies:
+    vue: ">=3.2.0"
+  checksum: 10c0/f4be8cee4811cd76f31b20625a17f3b588c3f3b40e5230051ad6b586b4ef8ac40016deb4db16cbbc4b22ac201469a9d97b27ea31997e773a8208a21816a961df
+  languageName: node
+  linkType: hard
+
 "@vueuse/core@npm:^10.11.0":
   version: 10.11.0
   resolution: "@vueuse/core@npm:10.11.0"
@@ -3764,7 +3785,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cfb@npm:^1.1.2":
+"cfb@npm:^1.1.2, cfb@npm:~1.2.1":
   version: 1.2.2
   resolution: "cfb@npm:1.2.2"
   dependencies:
@@ -3945,6 +3966,13 @@ __metadata:
   bin:
     codepage: ./bin/codepage.njs
   checksum: 10c0/687c58ceb6f1736dad6359eef0675129b73388325c0df8ff8d82564e1e7591ce7281c79b9a90b18bb105b536a139490ff4dd35d882c39082a62f8e3bb7b93348
+  languageName: node
+  linkType: hard
+
+"codepage@npm:~1.15.0":
+  version: 1.15.0
+  resolution: "codepage@npm:1.15.0"
+  checksum: 10c0/2455b482302cb784b46dea60a8ee83f0c23e794bdd979556bdb107abe681bba722af62a37f5c955ff4efd68fdb9688c3986e719b4fd536c0e06bb25bc82abea3
   languageName: node
   linkType: hard
 
@@ -4173,7 +4201,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crc-32@npm:^1.2.0, crc-32@npm:~1.2.0":
+"crc-32@npm:^1.2.0, crc-32@npm:~1.2.0, crc-32@npm:~1.2.1":
   version: 1.2.2
   resolution: "crc-32@npm:1.2.2"
   bin:
@@ -4377,6 +4405,24 @@ __metadata:
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
+  languageName: node
+  linkType: hard
+
+"date-fns-tz@npm:^1.3.7":
+  version: 1.3.8
+  resolution: "date-fns-tz@npm:1.3.8"
+  peerDependencies:
+    date-fns: ">=2.0.0"
+  checksum: 10c0/4cb16aeae3ea4a72ac4ae9f7db2011e38797aff122a78be16217a0492dde3938e1e62d21dbf1469a36fb4426824196233cedc70807f0a3033bca132bf76d563e
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.29.3":
+  version: 2.30.0
+  resolution: "date-fns@npm:2.30.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.21.0"
+  checksum: 10c0/e4b521fbf22bc8c3db332bbfb7b094fd3e7627de0259a9d17c7551e2d2702608a7307a449206065916538e384f37b181565447ce2637ae09828427aed9cb5581
   languageName: node
   linkType: hard
 
@@ -7877,7 +7923,9 @@ __metadata:
     vue: "npm:^3.4.29"
     vue-advanced-cropper: "npm:^2.8.9"
     vue-router: "npm:^4.3.3"
+    vue3-excel-editor: "npm:^1.0.59"
     vue3-xlsx: "npm:^1.1.2"
+    xlsx: "npm:^0.18.5"
   languageName: unknown
   linkType: soft
 
@@ -8988,6 +9036,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"regenerator-runtime@npm:^0.14.0":
+  version: 0.14.1
+  resolution: "regenerator-runtime@npm:0.14.1"
+  checksum: 10c0/1b16eb2c4bceb1665c89de70dcb64126a22bc8eb958feef3cd68fe11ac6d2a4899b5cd1b80b0774c7c03591dc57d16631a7f69d2daa2ec98100e2f29f7ec4cc4
+  languageName: node
+  linkType: hard
+
 "rehype-external-links@npm:^3.0.0":
   version: 3.0.0
   resolution: "rehype-external-links@npm:3.0.0"
@@ -9686,6 +9741,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sortablejs@npm:1.14.0":
+  version: 1.14.0
+  resolution: "sortablejs@npm:1.14.0"
+  checksum: 10c0/b792790286d54af5ebb083300d0cb3f96f5cf840e85f4953aa2074a69c1671a3d6a73f8d5fcc948b27c0573575ff98ec32346f7dcfe6230d517d7a81ea7ad314
+  languageName: node
+  linkType: hard
+
 "source-map-js@npm:>=0.6.2 <2.0.0, source-map-js@npm:^1.0.1, source-map-js@npm:^1.2.0":
   version: 1.2.0
   resolution: "source-map-js@npm:1.2.0"
@@ -9753,6 +9815,15 @@ __metadata:
   bin:
     ssf: bin/ssf.njs
   checksum: 10c0/46142a7aab5705fc118b9a0f7095fc2f5e6d743b9bfde8079cc47719178af7c67548cfdde7c1e1911cb859eed06b0033ac738883f4394a98a2c22116cd287ec2
+  languageName: node
+  linkType: hard
+
+"ssf@npm:~0.11.2":
+  version: 0.11.2
+  resolution: "ssf@npm:0.11.2"
+  dependencies:
+    frac: "npm:~1.1.2"
+  checksum: 10c0/c3fd24a90dc37a9dc5c4154cb4121e27507c33ebfeee3532aaf03625756b2c006cf79c0a23db0ba16c4a6e88e1349455327867e03453fc9d54b32c546bc18ca6
   languageName: node
   linkType: hard
 
@@ -11071,6 +11142,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vue3-excel-editor@npm:^1.0.59":
+  version: 1.0.59
+  resolution: "vue3-excel-editor@npm:1.0.59"
+  dependencies:
+    "@vuepic/vue-datepicker": "npm:^3.3.0"
+    vuedraggable: "npm:^4.1.0"
+    xlsx: "npm:^0.18.5"
+  checksum: 10c0/280edaeb69041cf2c80cabf5d13fa3253fddbfb0cb980d363956d05cd46c1c873ce6691b225386f4eb6a282fe336434fc59294ac06bbf4f841b37960ce3a1cbb
+  languageName: node
+  linkType: hard
+
 "vue3-xlsx@npm:^1.1.2":
   version: 1.1.2
   resolution: "vue3-xlsx@npm:1.1.2"
@@ -11133,6 +11215,17 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/b5fc08838b05ad9e8d245175e356d27d9d6df64d2060037253aa3e2d3a50a89b8413f7f553595860677bedf56a0640495b03ca29dea9c6f2ca2273ef513c3f15
+  languageName: node
+  linkType: hard
+
+"vuedraggable@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "vuedraggable@npm:4.1.0"
+  dependencies:
+    sortablejs: "npm:1.14.0"
+  peerDependencies:
+    vue: ^3.0.1
+  checksum: 10c0/e5121ca53081e63f6a3e1dc4c3c02ae86fd6b896ccf37d9a0f88abb993fd9da3a1b54635541854a2a85b65e30dae00e545a2c208708e7df73424bd64c2e59cbc
   languageName: node
   linkType: hard
 
@@ -11216,6 +11309,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"wmf@npm:~1.0.1":
+  version: 1.0.2
+  resolution: "wmf@npm:1.0.2"
+  checksum: 10c0/3fa5806f382632cadfe65d4ef24f7a583b0c0720171edb00e645af5248ad0bb6784e8fcee1ccd9f475a1a12a7523e2512e9c063731fbbdae14dc469e1c033d93
+  languageName: node
+  linkType: hard
+
+"word@npm:~0.3.0":
+  version: 0.3.0
+  resolution: "word@npm:0.3.0"
+  checksum: 10c0/c6da2a9f7a0d81a32fa6768a638d21b153da2be04f94f3964889c7cc1365d74b6ecb43b42256c3f926cd59512d8258206991c78c21000c3da96d42ff1238b840
+  languageName: node
+  linkType: hard
+
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0, wrap-ansi@npm:^7.0.0":
   version: 7.0.0
   resolution: "wrap-ansi@npm:7.0.0"
@@ -11274,6 +11381,23 @@ __metadata:
   bin:
     xlsx: ./bin/xlsx.njs
   checksum: 10c0/4e27ddcc288a567c31977430301970ba82a641b2606a9f350c6217bf3899bd6b7e3e0d2126dd95b9eeaf1b84edd6a6956aef84094d23a8a5c51dc935080d9f02
+  languageName: node
+  linkType: hard
+
+"xlsx@npm:^0.18.5":
+  version: 0.18.5
+  resolution: "xlsx@npm:0.18.5"
+  dependencies:
+    adler-32: "npm:~1.3.0"
+    cfb: "npm:~1.2.1"
+    codepage: "npm:~1.15.0"
+    crc-32: "npm:~1.2.1"
+    ssf: "npm:~0.11.2"
+    wmf: "npm:~1.0.1"
+    word: "npm:~0.3.0"
+  bin:
+    xlsx: bin/xlsx.njs
+  checksum: 10c0/787cfa77034a3e86fdcde21572f1011c8976f87823a5e0ee5057f13b2f6e48f17a1710732a91b8ae15d7794945c7cba8a3ca904ea7150e028260b0ab8e1158c8
   languageName: node
   linkType: hard
 

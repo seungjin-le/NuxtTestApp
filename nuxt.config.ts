@@ -51,7 +51,7 @@ export default defineNuxtConfig({
 
     vueQueryPluginOptions: {},
   },
-
+  plugins: ["~/plugins/vue-excel-editor.js"],
   postcss: {
     plugins: {
       tailwindcss: {},
