@@ -15,7 +15,7 @@ const position = reactive({
   left: 0,
   top: 0,
 });
-
+const multiple = ref([]);
 const change = (data) => {};
 
 const runtimeSlice = (data) => {
@@ -24,9 +24,12 @@ const runtimeSlice = (data) => {
 };
 
 const changeFile = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  img.value = URL.createObjectURL(file);
+  const files = e.target.files;
+
+  if (!files[0]) return;
+
+  multiple.value = files;
+  img.value = URL.createObjectURL(files[0]);
 };
 
 const getCoordinates = () => {
@@ -50,6 +53,14 @@ const download = () => {
   a.download = "slice.png";
   a.click();
 };
+const multipleImages = computed(() => {
+  const previewImages = [];
+  for (let i = 0; i < multiple.value.length; i++) {
+    previewImages.push(URL.createObjectURL(multiple.value[i]));
+  }
+
+  return previewImages;
+});
 </script>
 
 <template>
@@ -66,7 +77,7 @@ const download = () => {
       </button>
     </div>
     <div class="flex-row-center gap-2">
-      <input type="file" @change="changeFile" />
+      <input type="file" accept="image/*" multiple @change="changeFile" />
       <button class="text-[24px] text-white border-1 px-[12px] py-[3px] rounded-[5px]" @click="getCoordinates">
         자르기
       </button>
@@ -74,67 +85,74 @@ const download = () => {
         다운로드
       </button>
     </div>
-    <div class="flex-row-center gap-[20px] relative">
-      <div v-if="version === 1">
-        <Cropper
-          ref="editor"
-          class="w-[800px] h-[800px] bg-n40"
-          :src="img"
-          @change="change"
-          :stencil-props="{
-            aspectRatio: 16 / 4, // 시작 비율 16:4
-            minAspectRatio: 16 / 4, // 최소 비율 16:4
-            maxAspectRatio: 16 / 4, // 최대 비율 16:4
-            // movable: false,
-            // resizable: false,
-          }"
-        />
-        <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
-          <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
-        </div>
-      </div>
-      <div v-if="version === 2">
-        <Cropper
-          ref="editor"
-          class="w-[800px] h-[800px] bg-n40"
-          :src="img"
-          @change="change"
-          :stencil-size="{
-            width: 500,
-            height: 500,
-          }"
-          :stencil-props="{
-            aspectRatio: 16 / 4, // 시작 비율 16:4
-            movable: false,
-            resizable: false,
-          }"
-          image-restriction="stencil"
-        />
-        <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
-          <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
-        </div>
-      </div>
-      <div v-if="version === 3">
-        <Cropper
-          ref="editor"
-          class="w-[800px] h-[800px] bg-n40"
-          :src="img"
-          @change="runtimeSlice"
-          :debounce="false"
-          :stencil-props="{
-            aspectRatio: 16 / 4, // 시작 비율 16:4
-            minAspectRatio: 16 / 4, // 최소 비율 16:4
-            maxAspectRatio: 16 / 4, // 최대 비율 16:4
-          }"
-        />
-        <div class="absolute top-full translate-y-[20px] right-0 bg-n40 flex-row-center">
-          <Preview
-            v-if="result.image"
-            :width="result.coordinates.width"
-            :height="result.coordinates.height"
-            :image="result.image"
-            :coordinates="result.coordinates"
+    <div class="flex-row-center gap-[20px]">
+      <div class="flex-row-center gap-[20px] relative">
+        <div v-if="version === 1">
+          <Cropper
+            ref="editor"
+            class="w-[800px] h-[800px] bg-n40"
+            :src="img"
+            @change="change"
+            :stencil-props="{
+              aspectRatio: 16 / 4, // 시작 비율 16:4
+              minAspectRatio: 16 / 4, // 최소 비율 16:4
+              maxAspectRatio: 16 / 4, // 최대 비율 16:4
+              // movable: false,
+              // resizable: false,
+            }"
           />
+          <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
+            <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
+          </div>
+        </div>
+        <div v-if="version === 2">
+          <Cropper
+            ref="editor"
+            class="w-[800px] h-[800px] bg-n40"
+            :src="img"
+            @change="change"
+            :stencil-size="{
+              width: 500,
+              height: 500,
+            }"
+            :stencil-props="{
+              aspectRatio: 16 / 4, // 시작 비율 16:4
+              movable: false,
+              resizable: false,
+            }"
+            image-restriction="stencil"
+          />
+          <div class="absolute top-full translate-y-[20px] right-0 w-[300px] h-[300px] bg-n40 flex-row-center">
+            <img v-if="sliceImg" :src="sliceImg" alt="sliceImg" />
+          </div>
+        </div>
+        <div v-if="version === 3">
+          <Cropper
+            ref="editor"
+            class="w-[800px] h-[800px] bg-n40"
+            :src="img"
+            @change="runtimeSlice"
+            :debounce="false"
+            :stencil-props="{
+              aspectRatio: 16 / 4, // 시작 비율 16:4
+              minAspectRatio: 16 / 4, // 최소 비율 16:4
+              maxAspectRatio: 16 / 4, // 최대 비율 16:4
+            }"
+          />
+          <div class="absolute top-full translate-y-[20px] right-0 bg-n40 flex-row-center">
+            <Preview
+              v-if="result.image"
+              :width="result.coordinates.width"
+              :height="result.coordinates.height"
+              :image="result.image"
+              :coordinates="result.coordinates"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="flex-col-center gap-[10px]">
+        <div v-for="(item, index) in multipleImages" :key="`multiple_${index}`" class="max-w-[250px] max-h-[250px]">
+          <img :src="item" alt="multiple" />
         </div>
       </div>
     </div>
