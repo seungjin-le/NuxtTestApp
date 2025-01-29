@@ -26,8 +26,8 @@ export default defineNuxtConfig({
   },
   nitro: {
     routeRules: {
-      "/api/v1/": {
-        target: process.env.NUXT_ENV_API_KEY,
+      "/api/v1/**": {
+        proxy: process.env.NUXT_ENV_API_KEY,
         changeOrigin: true,
       },
     },
