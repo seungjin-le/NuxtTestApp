@@ -25,9 +25,11 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
-    "/api/v1/": {
-      target: process.env.NUXT_ENV_API_KEY,
-      changeOrigin: true,
+    routeRules: {
+      "/api/v1/": {
+        target: process.env.NUXT_ENV_API_KEY,
+        changeOrigin: true,
+      },
     },
   },
   pinia: {
